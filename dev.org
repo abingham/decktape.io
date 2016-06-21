@@ -1,0 +1,26 @@
+* Main plans
+The high level point of this project is to provide hosted decktape conversions.
+That is, you give the site a URL and it converts the URL to a PDF using
+decktape. For a lot or purposes, this will be simpler that forcing users to
+install decktape...though, notably, it introduces the complexity that the URL
+must be reachable from decktape.io (i.e. it can't be locally hosted).
+
+Here are the parts I envision right now:
+
+- Elm frontend that lets the user enter the URL and any processing options
+- A Pyramid server that accepts the requests and launches conversions
+- Initially we'll probably just do conversion in the pyramid process.
+  Ultimately, though, we'll probably want something like celery to let us farm
+  the work out to other processes/machines. A task queue will also make it
+  easier to manage resource usage if the service becomes popular enough for that
+  to be an issue. It's probably a bit easier to test/verify, too.
+- Results will be stored in mongodb (or some other document database). The
+  filesystem might be a reasonable option as well, but a database feels simpler
+  in this case. It will allow us to more easily associated metadata with
+  results, I think. We'll see.
+- (bonus points) It might be worthwhile adding google adwords or something to
+  the site to generate a bit of income. It would be an interesting experiment if
+  nothing else.
+
+I'll probably continue to use this document to keep track of development, in
+conjunction with an online issue tracker.
