@@ -3,3 +3,5 @@ build
 dist
 elm/elm-stuff
 elm/index.html
+__pycache__
+*pyc
