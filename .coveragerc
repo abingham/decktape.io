@@ -1,0 +1,3 @@
+[run]
+source = decktape_io
+omit = decktape_io/test*
