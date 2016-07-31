@@ -19,15 +19,16 @@ def main_view_in_elm(request):
 def convert(request):
     """Call this to ask for the conversion of a URL.
 
-    Responds with a JSON object with an 'job_id' field. This 'job_id' can be
-    used to retrieve the results later.
+    Responds with a JSON object with a 'path' field indicating where the output
+    file can be found.
+
     """
     url = request.json_body['name']
     job_id = uuid.uuid1()
     # TODO: Request that conversion of 'url' be done, associated with the job-id for later retrieval.
 
     results = {
-        'job_id': job_id
+        'path': '/some/path/to/output/{}'.format(job_id)
     }
 
     return Response(
