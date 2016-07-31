@@ -23,12 +23,13 @@ def convert(request):
     file can be found.
 
     """
-    url = request.json_body['name']
+    url = request.json_body['url']
     job_id = uuid.uuid1()
     # TODO: Request that conversion of 'url' be done, associated with the job-id for later retrieval.
 
     results = {
-        'path': '/some/path/to/output/{}'.format(job_id)
+        'path': '/some/path/to/output/{}'.format(job_id),
+        'url': url
     }
 
     return Response(

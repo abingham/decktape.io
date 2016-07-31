@@ -5,3 +5,6 @@ elm/elm-stuff
 elm/index.html
 __pycache__
 *pyc
+
+# We might have a decktape installation hanging around. Ignore it.
+decktape
