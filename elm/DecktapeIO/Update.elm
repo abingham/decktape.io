@@ -2,7 +2,7 @@ module DecktapeIO.Update (update) where
 
 import DecktapeIO.Actions exposing (..)
 import DecktapeIO.Effects exposing (noFx)
-import DecktapeIO.Model exposing (Model, Path, URL)
+import DecktapeIO.Model exposing (Model, ID, URL)
 import Effects
 import Http
 import Json.Encode
@@ -17,15 +17,15 @@ import List
 conversionResponseDecoder : Json.Decode.Decoder ConversionResponse
 conversionResponseDecoder =
   let
-    toResponse url path =
+    toResponse url id =
       { url = url
-      , path = path
+      , id = id
       }
   in
     Json.Decode.object2
       toResponse
       ("url" := Json.Decode.string)
-      ("path" := Json.Decode.string)
+      ("id" := Json.Decode.string)
 
 
 submitUrl : URL -> Effects Action
@@ -55,19 +55,19 @@ submitUrl presentationUrl =
       |> Effects.task
 
 
-applyConversionResult : List ( URL, Path ) -> ConversionResponse -> List ( URL, Path )
+applyConversionResult : List ( URL, ID ) -> ConversionResponse -> List ( URL, ID )
 applyConversionResult model response =
   let
     f =
       response.url
 
-    updatePath ( u, p ) =
+    updateID ( u, p ) =
       if u == response.url then
-        ( response.url, response.path )
+        ( response.url, response.id )
       else
         ( u, p )
   in
-    List.map updatePath model
+    List.map updateID model
 
 
 update : Action -> Model -> ( Model, Effects.Effects Action )

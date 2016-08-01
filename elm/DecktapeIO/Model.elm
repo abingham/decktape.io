@@ -1,12 +1,12 @@
-module DecktapeIO.Model (initialModel, Model, Path, URL) where
+module DecktapeIO.Model (ID, initialModel, Model, URL) where
 
 -- TODO: replace these with aliases from existing libraries?
 type alias URL = String
-type alias Path = String
+type alias ID = String
 
 type alias Model =
   { url : String
-  , submittedUrls : List (URL, Path)
+  , submittedUrls : List (URL, ID)
   }
 
 

@@ -1,7 +1,11 @@
+import subprocess
+
 from pyramid.response import FileResponse, Response
 from pyramid.view import view_config
 
 import json
+import os.path
+import tempfile
 import uuid
 
 
@@ -24,11 +28,21 @@ def convert(request):
 
     """
     url = request.json_body['url']
-    job_id = uuid.uuid1()
+    file_id = uuid.uuid1()
     # TODO: Request that conversion of 'url' be done, associated with the job-id for later retrieval.
 
+    with tempfile.TemporaryDirectory() as tempdir:
+        filename = os.path.join(tempdir.name, file_id)
+        command = [
+            request.registry.settings['decktape_bin_path'],
+            url,
+            filename]
+        subprocess.run(command)
+        with open(filename, 'rb') as pdf_file:
+            request.result_db.add_pdf(file_id, pdf_file.read())
+
     results = {
-        'path': '/some/path/to/output/{}'.format(job_id),
+        'id': '/some/path/to/output/{}'.format(file_id),
         'url': url
     }
 
