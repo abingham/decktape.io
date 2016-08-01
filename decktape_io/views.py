@@ -1,10 +1,9 @@
-import subprocess
-
 from pyramid.response import FileResponse, Response
 from pyramid.view import view_config
 
 import json
 import os.path
+import subprocess
 import tempfile
 import uuid
 
@@ -41,11 +40,22 @@ def convert(request):
         with open(filename, 'rb') as pdf_file:
             request.result_db.add_pdf(file_id, pdf_file.read())
 
+    pdf_url = request.route_url('result', file_id=file_id)
+
     results = {
-        'id': '/some/path/to/output/{}'.format(file_id),
-        'url': url
+        'result_url': pdf_url,
+        'source_url': url
     }
 
     return Response(
         body=json.dumps(results),
         content_type='application/json')
+
+
+@view_config(route_name='result',
+             request_method='GET')
+def result(request):
+    print(request.matchdict['file_id'])
+    resp = Response(body='TODO',
+                    content_type='application/pdf')
+    return resp

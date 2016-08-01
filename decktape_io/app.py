@@ -22,6 +22,7 @@ def make_app(global_config=None, **settings):
     config.add_static_view('static', 'static', cache_max_age=3600)
     config.add_route('home', '/')
     config.add_route('convert', '/convert')
+    config.add_route('result', '/result/{file_id}')
     config.scan()
 
     # Add a result-db to each request.
