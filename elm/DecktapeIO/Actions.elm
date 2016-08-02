@@ -1,17 +1,11 @@
 module DecktapeIO.Actions (..) where
 
-import DecktapeIO.Model exposing (ID, URL)
+import DecktapeIO.Model
 import Result exposing (Result)
 import Http.Extra exposing (Error, Response)
 
 
-type alias ConversionResponse =
-  { url : URL
-  , id : ID
-  }
-
-
 type Action
-  = SetUrl URL
-  | SubmitUrl URL
-  | ConversionResults (Result (Error String) (Response ConversionResponse))
+  = SetUrl DecktapeIO.Model.URL
+  | SubmitUrl DecktapeIO.Model.URL
+  | ConversionResults (Result (Error String) (Response DecktapeIO.Model.Result))

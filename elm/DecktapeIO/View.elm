@@ -21,13 +21,13 @@ script url =
 submittedUrlsView : Model -> List Html
 submittedUrlsView model =
   List.map
-    (\u ->
+    (\r ->
       row_
-        [ colMd_ 4 4 4 [ text (fst u) ]
-        , colMd_ 4 4 4 [ text (snd u) ]
+        [ colMd_ 4 4 4 [ text r.source_url ]
+        , colMd_ 4 4 4 [ text r.result_url ]
         ]
     )
-    model.submittedUrls
+    model.results
 
 
 view : Signal.Address Action -> Model -> Html

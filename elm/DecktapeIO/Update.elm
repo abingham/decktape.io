@@ -2,7 +2,7 @@ module DecktapeIO.Update (update) where
 
 import DecktapeIO.Actions exposing (..)
 import DecktapeIO.Effects exposing (noFx)
-import DecktapeIO.Model exposing (Model, ID, URL)
+import DecktapeIO.Model
 import Effects
 import Http
 import Json.Encode
@@ -11,31 +11,24 @@ import Json.Decode exposing ((:=))
 import Http.Extra exposing (jsonReader, post, send, stringReader, withBody, withHeader)
 import Effects exposing (Effects)
 import Task
-import List
 
 
-conversionResponseDecoder : Json.Decode.Decoder ConversionResponse
-conversionResponseDecoder =
-  let
-    toResponse url id =
-      { url = url
-      , id = id
-      }
-  in
-    Json.Decode.object2
-      toResponse
-      ("url" := Json.Decode.string)
-      ("id" := Json.Decode.string)
+resultDecoder : Json.Decode.Decoder DecktapeIO.Model.Result
+resultDecoder =
+  Json.Decode.object2
+    (\s r -> { source_url = s, result_url = r })
+    ("url" := Json.Decode.string)
+    ("id" := Json.Decode.string)
 
 
-submitUrl : URL -> Effects Action
+submitUrl : DecktapeIO.Model.URL -> Effects Action
 submitUrl presentationUrl =
   let
     url =
       Http.url "/convert" []
 
     reader =
-      jsonReader conversionResponseDecoder
+      jsonReader resultDecoder
 
     bodyObj =
       Json.Encode.object [ ( "url", Json.Encode.string presentationUrl ) ]
@@ -55,37 +48,26 @@ submitUrl presentationUrl =
       |> Effects.task
 
 
-applyConversionResult : List ( URL, ID ) -> ConversionResponse -> List ( URL, ID )
-applyConversionResult model response =
-  let
-    f =
-      response.url
-
-    updateID ( u, p ) =
-      if u == response.url then
-        ( response.url, response.id )
-      else
-        ( u, p )
-  in
-    List.map updateID model
-
-
-update : Action -> Model -> ( Model, Effects.Effects Action )
+update : Action -> DecktapeIO.Model.Model -> ( DecktapeIO.Model.Model, Effects.Effects Action )
 update action model =
   case action of
     SetUrl url ->
       { model | url = url } |> noFx
 
     SubmitUrl url ->
-      ( { model | submittedUrls = (( url, "" ) :: model.submittedUrls) }
+      ( { model | url = "" }
       , submitUrl url
       )
 
-    ConversionResults response ->
-      case response of
-        Ok r ->
-          { model | submittedUrls = applyConversionResult model.submittedUrls r.data } |> noFx
+    ConversionResults result ->
+      let
+        newModel =
+          case result of
+            Ok response ->
+              { model | results = response.data :: model.results }
 
-        Err error ->
-          -- TODO: Display results somewhere.
-          model |> noFx
+            Err error ->
+              -- TODO: Display results somewhere.
+              model
+      in
+        newModel |> noFx
