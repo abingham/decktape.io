@@ -17,8 +17,8 @@ resultDecoder : Json.Decode.Decoder DecktapeIO.Model.Result
 resultDecoder =
   Json.Decode.object2
     (\s r -> { source_url = s, result_url = r })
-    ("url" := Json.Decode.string)
-    ("id" := Json.Decode.string)
+    ("source_url" := Json.Decode.string)
+    ("result_url" := Json.Decode.string)
 
 
 submitUrl : DecktapeIO.Model.URL -> Effects Action

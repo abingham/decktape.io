@@ -21,6 +21,6 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-  { url = "http://something.example.com"
+  { url = "http://shwr.me/?full"
   , results = []
   }

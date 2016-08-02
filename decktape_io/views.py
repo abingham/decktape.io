@@ -27,13 +27,14 @@ def convert(request):
 
     """
     url = request.json_body['url']
-    file_id = uuid.uuid1()
+    file_id = str(uuid.uuid1())
     # TODO: Request that conversion of 'url' be done, associated with the job-id for later retrieval.
 
     with tempfile.TemporaryDirectory() as tempdir:
-        filename = os.path.join(tempdir.name, file_id)
+        filename = os.path.join(tempdir, file_id)
         command = [
-            request.registry.settings['decktape_bin_path'],
+            request.registry.settings['decktape_phantomjs_path'],
+            request.registry.settings['decktape_js_path'],
             url,
             filename]
         subprocess.run(command)
@@ -55,7 +56,8 @@ def convert(request):
 @view_config(route_name='result',
              request_method='GET')
 def result(request):
-    print(request.matchdict['file_id'])
-    resp = Response(body='TODO',
+    data = request.result_db.get_pdf(
+        request.matchdict['file_id'])
+    resp = Response(body=data,
                     content_type='application/pdf')
     return resp

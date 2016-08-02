@@ -2,7 +2,7 @@ module DecktapeIO.View (view) where
 
 import DecktapeIO.Actions exposing (..)
 import DecktapeIO.Model exposing (Model)
-import Html exposing (div, fromElement, Html, hr, h1, input, label, node, text)
+import Html exposing (a, div, fromElement, Html, hr, h1, input, label, node, text)
 import Html.Attributes exposing (class, href, rel, src, type', value)
 import Html.Events exposing (on, targetValue)
 import Bootstrap.Html exposing (..)
@@ -24,7 +24,7 @@ submittedUrlsView model =
     (\r ->
       row_
         [ colMd_ 4 4 4 [ text r.source_url ]
-        , colMd_ 4 4 4 [ text r.result_url ]
+        , colMd_ 4 4 4 [ a [href r.result_url] [text r.result_url]]
         ]
     )
     model.results
