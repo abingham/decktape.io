@@ -5,6 +5,7 @@ import DecktapeIO.Model exposing (Model)
 import Html exposing (a, div, fromElement, Html, hr, h1, input, label, node, text)
 import Html.Attributes exposing (class, href, rel, src, type', value)
 import Html.Events exposing (on, targetValue)
+import Html.Shorthand exposing (..)
 import Bootstrap.Html exposing (..)
 
 
@@ -18,16 +19,27 @@ script url =
   node "script" [ src url ] []
 
 
-submittedUrlsView : Model -> List Html
+submittedUrlsView : Model -> Html
 submittedUrlsView model =
-  List.map
-    (\r ->
-      row_
-        [ colMd_ 4 4 4 [ text r.source_url ]
-        , colMd_ 4 4 4 [ a [href r.result_url] [text r.result_url]]
-        ]
-    )
-    model.results
+  let
+    make_row =
+      (\r ->
+        tr_
+          [ td_ [ a [ href r.source_url ] [ text r.source_url ] ]
+          , td_ [ a [ href r.result_url ] [ text "Download" ] ]
+          ]
+      )
+
+    rows =
+      List.map make_row model.results
+  in
+    tableStriped_
+      [ thead_
+          [ th' { class = "text-left" } [ text "Source URL" ]
+          , th' { class = "text-left" } [ text "Status" ]
+          ]
+      , tbody_ rows
+      ]
 
 
 view : Signal.Address Action -> Model -> Html
@@ -64,6 +76,6 @@ view address model =
             [ btnDefault' "" { btnParam | label = Just "Convert!" } address (SubmitUrl model.url)
             ]
         ]
+     , submittedUrlsView model
      ]
-      ++ (submittedUrlsView model)
     )
