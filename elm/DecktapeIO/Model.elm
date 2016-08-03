@@ -1,17 +1,20 @@
 module DecktapeIO.Model (..) where
 
--- TODO: replace these with aliases from existing libraries?
+type alias URL = String
 
-
-type alias URL =
-  String
+type Status
+    = InProgress
+    | Success URL
+    | Error String
 
 
 type alias Result =
   { source_url : URL
-  , result_url : URL
+  , status : Status
   }
 
+makeResult : URL -> Status -> Result
+makeResult url status = { source_url = url, status = status }
 
 type alias Model =
   { url : String

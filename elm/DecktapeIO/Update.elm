@@ -16,7 +16,11 @@ import Task
 resultDecoder : Json.Decode.Decoder DecktapeIO.Model.Result
 resultDecoder =
   Json.Decode.object2
-    (\s r -> { source_url = s, result_url = r })
+    (\s r ->
+      { source_url = s
+      , status = DecktapeIO.Model.Success r
+      }
+    )
     ("source_url" := Json.Decode.string)
     ("result_url" := Json.Decode.string)
 
@@ -48,6 +52,18 @@ submitUrl presentationUrl =
       |> Effects.task
 
 
+updateResultsSuccess : List DecktapeIO.Model.Result -> DecktapeIO.Model.Result -> List DecktapeIO.Model.Result
+updateResultsSuccess results result =
+  let
+    updater r =
+        if r.source_url == result.source_url then
+            result
+        else
+            r
+  in
+    List.map updater results
+
+
 update : Action -> DecktapeIO.Model.Model -> ( DecktapeIO.Model.Model, Effects.Effects Action )
 update action model =
   case action of
@@ -55,7 +71,10 @@ update action model =
       { model | url = url } |> noFx
 
     SubmitUrl url ->
-      ( { model | url = "" }
+      ( { model
+          | url = ""
+            , results = DecktapeIO.Model.makeResult url DecktapeIO.Model.InProgress :: model.results
+        }
       , submitUrl url
       )
 
@@ -64,7 +83,9 @@ update action model =
         newModel =
           case result of
             Ok response ->
-              { model | results = response.data :: model.results }
+              { model
+                | results = updateResultsSuccess model.results response.data
+              }
 
             Err error ->
               -- TODO: Display results somewhere.
