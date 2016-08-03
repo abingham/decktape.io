@@ -3,7 +3,7 @@ module DecktapeIO.View (view) where
 import DecktapeIO.Actions exposing (..)
 import DecktapeIO.Model
 import Html exposing (a, div, fromElement, Html, hr, h1, input, label, node, text)
-import Html.Attributes exposing (class, href, rel, src, type', value)
+import Html.Attributes exposing (class, downloadAs, href, rel, src, type', value)
 import Html.Events exposing (on, targetValue)
 import Html.Shorthand exposing (..)
 import Bootstrap.Html exposing (..)
@@ -26,7 +26,7 @@ statusToRow status =
       text "In progress"
 
     DecktapeIO.Model.Success url ->
-      a [ href url ] [ text "Download" ]
+      a [ href url, downloadAs "download.pdf" ] [ text "Download" ]
 
     DecktapeIO.Model.Error msg ->
       text msg
