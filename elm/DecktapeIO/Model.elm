@@ -1,10 +1,11 @@
 module DecktapeIO.Model (..) where
 
 type alias URL = String
+type alias Title = String
 
 type Status
     = InProgress
-    | Success URL
+    | Success URL Title
     | Error String
 
 

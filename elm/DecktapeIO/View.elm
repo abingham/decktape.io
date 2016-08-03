@@ -25,8 +25,11 @@ statusToRow status =
     DecktapeIO.Model.InProgress ->
       text "In progress"
 
-    DecktapeIO.Model.Success url ->
-      a [ href url, downloadAs "download.pdf" ] [ text "Download" ]
+    DecktapeIO.Model.Success url title ->
+        let
+            filename = title ++ ".pdf"
+        in
+            a [ href url, downloadAs filename ] [ text "Download" ]
 
     DecktapeIO.Model.Error msg ->
       text msg

@@ -15,14 +15,15 @@ import Task
 
 resultDecoder : Json.Decode.Decoder DecktapeIO.Model.Result
 resultDecoder =
-  Json.Decode.object2
-    (\s r ->
+  Json.Decode.object3
+    (\s r t ->
       { source_url = s
-      , status = DecktapeIO.Model.Success r
+      , status = DecktapeIO.Model.Success r t
       }
     )
     ("source_url" := Json.Decode.string)
     ("result_url" := Json.Decode.string)
+    ("title" := Json.Decode.string)
 
 
 submitUrl : URL -> Effects Action

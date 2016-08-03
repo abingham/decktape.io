@@ -45,7 +45,8 @@ def convert(request):
 
     results = {
         'result_url': pdf_url,
-        'source_url': url
+        'source_url': url,
+        'title': file_id
     }
 
     return Response(
