@@ -2,7 +2,7 @@ module DecktapeIO.Update (update) where
 
 import DecktapeIO.Actions exposing (..)
 import DecktapeIO.Effects exposing (noFx)
-import DecktapeIO.Model
+import DecktapeIO.Model exposing (makeResult, Model, URL)
 import Effects
 import Http
 import Json.Encode
@@ -25,7 +25,7 @@ resultDecoder =
     ("result_url" := Json.Decode.string)
 
 
-submitUrl : DecktapeIO.Model.URL -> Effects Action
+submitUrl : URL -> Effects Action
 submitUrl presentationUrl =
   let
     url =
@@ -64,7 +64,7 @@ updateResultsSuccess results result =
     List.map updater results
 
 
-update : Action -> DecktapeIO.Model.Model -> ( DecktapeIO.Model.Model, Effects.Effects Action )
+update : Action -> Model -> ( Model, Effects.Effects Action )
 update action model =
   case action of
     SetUrl url ->
@@ -73,7 +73,7 @@ update action model =
     SubmitUrl url ->
       ( { model
           | url = ""
-            , results = DecktapeIO.Model.makeResult url DecktapeIO.Model.InProgress :: model.results
+            , results = makeResult url DecktapeIO.Model.InProgress :: model.results
         }
       , submitUrl url
       )
