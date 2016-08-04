@@ -25,13 +25,13 @@ statusToRow status =
     DecktapeIO.Model.InProgress ->
       text "In progress"
 
-    DecktapeIO.Model.Success url title ->
+    DecktapeIO.Model.Ok output ->
         let
-            filename = title ++ ".pdf"
+            filename = output.title ++ ".pdf"
         in
-            a [ href url, downloadAs filename ] [ text "Download" ]
+            a [ href output.result_url, downloadAs filename ] [ text "Download" ]
 
-    DecktapeIO.Model.Error msg ->
+    DecktapeIO.Model.Err msg ->
       text msg
 
 
@@ -47,7 +47,7 @@ submittedUrlsView model =
       )
 
     rows =
-      List.map make_row model.results
+      List.map make_row model.conversions
   in
     tableStriped_
       [ thead_
@@ -78,8 +78,8 @@ view address model =
             [ input
                 [ type' "text"
                 , class "form-control"
-                , value model.url
-                , on "input" targetValue (Signal.message address << SetUrl)
+                , value model.current_url
+                , on "input" targetValue (Signal.message address << SetCurrentUrl)
                 ]
                 []
             ]
@@ -89,7 +89,7 @@ view address model =
             4
             4
             4
-            [ btnDefault' "" { btnParam | label = Just "Convert!" } address (SubmitUrl model.url)
+            [ btnDefault' "" { btnParam | label = Just "Convert!" } address (SubmitCurrentUrl)
             ]
         ]
      , submittedUrlsView model
