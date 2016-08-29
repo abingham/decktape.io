@@ -19,6 +19,10 @@ script url =
   node "script" [ src url ] []
 
 
+
+-- Display of a single conversion request status.
+
+
 statusToRow : DecktapeIO.Model.Status -> Html
 statusToRow status =
   case status of
@@ -26,13 +30,18 @@ statusToRow status =
       text "In progress"
 
     DecktapeIO.Model.Ok output ->
-        let
-            filename = output.title ++ ".pdf"
-        in
-            a [ href output.result_url, downloadAs filename ] [ text "Download" ]
+      let
+        filename =
+          output.title ++ ".pdf"
+      in
+        a [ href output.result_url, downloadAs filename ] [ text "Download" ]
 
     DecktapeIO.Model.Err msg ->
       text msg
+
+
+
+-- Display for the collection of URLs submitted for conversion.
 
 
 submittedUrlsView : DecktapeIO.Model.Model -> Html

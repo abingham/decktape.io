@@ -6,7 +6,6 @@ import Task
 import Effects exposing (Effects)
 
 
-
 main : Signal Html.Html
 main =
   app.html

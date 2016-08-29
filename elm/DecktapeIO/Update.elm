@@ -9,9 +9,15 @@ import Json.Encode
 import Json.Decode exposing ((:=))
 import Http
 import Http.Extra exposing (Error, jsonReader, post, Response, send, stringReader, withBody, withHeader)
+
+
 -- import List.Extra exposing (replaceIf)
+
 import Result
 import Task
+
+
+-- Decodes the JSON response from a conversion request into an `Output`.
 
 
 outputDecoder : Json.Decode.Decoder DecktapeIO.Model.Output
@@ -21,8 +27,16 @@ outputDecoder =
     ("result_url" := Json.Decode.string)
     ("title" := Json.Decode.string)
 
-makeHandleCompletion : URL -> Result.Result (Error String) (Response DecktapeIO.Model.Output) -> DecktapeIO.Actions.Action
-makeHandleCompletion source_url result =
+
+
+-- Process the result of submitting a URL for conversion.
+--
+-- This results in a `HandleCompletion` action which will be handled
+-- separately.
+
+
+handleSubmissionResults : URL -> Result.Result (Error String) (Response DecktapeIO.Model.Output) -> DecktapeIO.Actions.Action
+handleSubmissionResults source_url result =
   let
     r =
       case result of
@@ -32,8 +46,13 @@ makeHandleCompletion source_url result =
         Result.Err error ->
           -- TODO: Handle the various flavors of error: UnexpectedPayload, NetworkError, etc.
           Result.Err "Something went wrong!"
-    in
-      HandleCompletion source_url r
+  in
+    HandleCompletion source_url r
+
+
+
+-- Submit a request to convert the presentation at `presentationUrl`.
+
 
 submitUrl : URL -> Effects Action
 submitUrl presentationUrl =
@@ -58,8 +77,12 @@ submitUrl presentationUrl =
   in
     task
       |> Task.toResult
-      |> Task.map (makeHandleCompletion presentationUrl)
+      |> Task.map (handleSubmissionResults presentationUrl)
       |> Effects.task
+
+
+
+-- Central update function.
 
 
 update : Action -> Model -> ( Model, Effects.Effects Action )
@@ -70,7 +93,8 @@ update action model =
 
     SubmitCurrentUrl ->
       let
-        newConversion = Conversion model.current_url InProgress
+        newConversion =
+          Conversion model.current_url InProgress
       in
         ( { model
             | current_url = ""
@@ -81,19 +105,21 @@ update action model =
 
     HandleCompletion source_url result ->
       model |> noFx
-      -- let
-      --   newModel =
-      --     case completion of
-      --       Ok result ->
-      --         { model
-      --           | results =
-      --             replaceIf
-      --               (\r -> r.source_url == source_url)
-      --               (DecktapeIO.Model.makeResult source_url (DecktapeIO.Model.Completed completion))
-      --               model.results}
 
-      --       Err error ->
-      --         -- TODO: Display results somewhere.
-      --         model
-      -- in
-      --   newModel |> noFx
+
+
+-- let
+--   newModel =
+--     case completion of
+--       Ok result ->
+--         { model
+--           | results =
+--             replaceIf
+--               (\r -> r.source_url == source_url)
+--               (DecktapeIO.Model.makeResult source_url (DecktapeIO.Model.Completed completion))
+--               model.results}
+--       Err error ->
+--         -- TODO: Display results somewhere.
+--         model
+-- in
+--   newModel |> noFx
