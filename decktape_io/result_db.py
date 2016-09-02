@@ -18,6 +18,9 @@ class ResultDB:
         stored = self._gfs.find_one({'file_id': file_id})
         return stored
 
+    def get_by_url(self, url):
+        return self._gfs.find({'url': url})
+
     def __iter__(self):
         return self._gfs.find()
 

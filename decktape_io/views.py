@@ -9,6 +9,16 @@ import tempfile
 import uuid
 
 
+def _make_result(request, file_id, source_url):
+    result_url = request.route_url('result', file_id=file_id)
+
+    return {
+        'result_url': result_url,
+        'source_url': source_url,
+        'file_id': file_id
+    }
+
+
 @view_config(route_name='home')
 def main_view_in_elm(request):
     response = FileResponse('elm/index.html',
@@ -46,16 +56,9 @@ def convert(request):
                 datetime.datetime.now(),
                 pdf_file.read())
 
-    pdf_url = request.route_url('result', file_id=file_id)
-
-    results = {
-        'result_url': pdf_url,
-        'source_url': url,
-        'file_id': file_id
-    }
-
+    result = _make_result(request, file_id, url)
     return Response(
-        body=json.dumps(results),
+        body=json.dumps(result),
         content_type='application/json')
 
 
@@ -67,3 +70,18 @@ def result(request):
     resp = Response(body=entry.read(),
                     content_type='application/pdf')
     return resp
+
+
+@view_config(route_name='candidates',
+             request_method='GET',
+             renderer='json')
+def candidates(request):
+    url = request.params['url']
+
+    results = [
+        _make_result(request, r.file_id, r.url)
+        for r in request.result_db.get_by_url(url)]
+
+    return Response(
+        body=json.dumps(results),
+        content_type='application/json')

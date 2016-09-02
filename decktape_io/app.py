@@ -10,6 +10,7 @@ def make_app(global_config=None, **settings):
     config.add_route('home', '/')
     config.add_route('convert', '/convert')
     config.add_route('result', '/result/{file_id}')
+    config.add_route('candidates', '/candidates')
     config.scan()
 
     # Add a result-db to each request.
