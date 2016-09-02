@@ -2,7 +2,7 @@ module DecktapeIO.View (view) where
 
 import DecktapeIO.Actions exposing (..)
 import DecktapeIO.Model
-import Html exposing (a, div, fromElement, Html, hr, h1, input, label, node, text)
+import Html exposing (a, div, form, fromElement, Html, hr, h1, input, label, node, text)
 import Html.Attributes exposing (class, downloadAs, href, rel, src, type', value)
 import Html.Events exposing (on, targetValue)
 import Html.Shorthand exposing (..)
@@ -104,29 +104,21 @@ view address model =
          , script "/static/bootstrap.min.js"
          , row_
             [ colMd_
-                4
-                4
-                4
-                [ label [ class "control-label pull-right" ] [ text "URL:" ] ]
-            , colMd_
-                8
-                8
-                8
-                [ input
-                    [ type' "text"
-                    , class "form-control"
-                    , value model.current_url
-                    , on "input" targetValue (Signal.message address << SetCurrentUrl)
+                12
+                12
+                12
+                [ form
+                    [ class "form-horizontal" ]
+                    [ label [ class "control-label pull-right" ] [ text "URL:" ]
+                    , input
+                        [ type' "text"
+                        , class "form-control"
+                        , value model.current_url
+                        , on "input" targetValue (Signal.message address << SetCurrentUrl)
+                        ]
+                        []
+                    , btnDefault' "" { btnParam | label = Just "Convert!" } address (SubmitCurrentUrl)
                     ]
-                    []
-                ]
-            ]
-         , row_
-            [ colMd_
-                4
-                4
-                4
-                [ btnDefault' "" { btnParam | label = Just "Convert!" } address (SubmitCurrentUrl)
                 ]
             ]
          , text "Submissions"
