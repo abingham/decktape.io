@@ -61,10 +61,10 @@ submittedUrlsView model =
 view : Signal.Address Action -> DecktapeIO.Model.Model -> Html
 view address model =
   containerFluid_
-    ([ stylesheet "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
-     , stylesheet "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
-     , script "https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"
-     , script "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+    ([ stylesheet "/static/bootstrap.min.css"
+     , stylesheet "/static/bootstrap-theme.min.css"
+     , script "/static/jquery.min.js"
+     , script "/static/bootstrap.min.js"
      , row_
         [ colMd_
             4
