@@ -39,7 +39,7 @@ def convert(request):
             filename]
         subprocess.run(command)
         with open(filename, 'rb') as pdf_file:
-            request.result_db.add_pdf(file_id, pdf_file.read())
+            request.result_db.add(file_id, pdf_file.read())
 
     pdf_url = request.route_url('result', file_id=file_id)
 
@@ -57,7 +57,7 @@ def convert(request):
 @view_config(route_name='result',
              request_method='GET')
 def result(request):
-    data = request.result_db.get_pdf(
+    data = request.result_db.get(
         request.matchdict['file_id'])
     resp = Response(body=data,
                     content_type='application/pdf')

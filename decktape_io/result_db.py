@@ -8,11 +8,11 @@ class ResultDB:
         db = client.decktape_io
         self._gfs = gridfs.GridFS(db)
 
-    def add_pdf(self, name, data):
-        self._gfs.put(data, filename=name)
+    def add(self, file_id, data):
+        self._gfs.put(data, file_id=file_id)
 
-    def get_pdf(self, name):
-        stored = self._gfs.find_one({'filename': name})
+    def get(self, file_id):
+        stored = self._gfs.find_one({'file_id': file_id})
         return stored.read()
 
 
