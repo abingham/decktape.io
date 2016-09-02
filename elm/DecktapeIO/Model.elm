@@ -5,7 +5,7 @@ type alias URL =
   String
 
 
-type alias Title =
+type alias FileID =
   String
 
 
@@ -15,7 +15,7 @@ type alias Title =
 
 type alias Output =
   { result_url : URL
-  , title : Title
+  , file_id : FileID
   }
 
 

@@ -22,7 +22,7 @@ outputDecoder =
     Json.Decode.object2
         DecktapeIO.Model.Output
         ("result_url" := Json.Decode.string)
-        ("title" := Json.Decode.string)
+        ("file_id" := Json.Decode.string)
 
 
 

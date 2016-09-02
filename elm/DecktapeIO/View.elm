@@ -32,7 +32,7 @@ statusToRow status =
     DecktapeIO.Model.Ok output ->
       let
         filename =
-          output.title ++ ".pdf"
+          output.file_id ++ ".pdf"
       in
         a [ href output.result_url, downloadAs filename ] [ text "Download" ]
 

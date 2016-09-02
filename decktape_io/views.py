@@ -1,6 +1,7 @@
 from pyramid.response import FileResponse, Response
 from pyramid.view import view_config
 
+import datetime
 import json
 import os.path
 import subprocess
@@ -39,14 +40,18 @@ def convert(request):
             filename]
         subprocess.run(command)
         with open(filename, 'rb') as pdf_file:
-            request.result_db.add(file_id, pdf_file.read())
+            request.result_db.add(
+                file_id,
+                url,
+                datetime.datetime.now(),
+                pdf_file.read())
 
     pdf_url = request.route_url('result', file_id=file_id)
 
     results = {
         'result_url': pdf_url,
         'source_url': url,
-        'title': file_id
+        'file_id': file_id
     }
 
     return Response(
@@ -57,8 +62,8 @@ def convert(request):
 @view_config(route_name='result',
              request_method='GET')
 def result(request):
-    data = request.result_db.get(
+    entry = request.result_db.get(
         request.matchdict['file_id'])
-    resp = Response(body=data,
+    resp = Response(body=entry.read(),
                     content_type='application/pdf')
     return resp
