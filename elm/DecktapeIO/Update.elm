@@ -9,10 +9,7 @@ import Json.Encode
 import Json.Decode exposing ((:=))
 import Http
 import Http.Extra exposing (Error, jsonReader, post, Response, send, stringReader, withBody, withHeader)
-
-
--- import List.Extra exposing (replaceIf)
-
+import List.Extra exposing (replaceIf)
 import Result
 import Task
 
@@ -22,10 +19,10 @@ import Task
 
 outputDecoder : Json.Decode.Decoder DecktapeIO.Model.Output
 outputDecoder =
-  Json.Decode.object2
-    DecktapeIO.Model.Output
-    ("result_url" := Json.Decode.string)
-    ("title" := Json.Decode.string)
+    Json.Decode.object2
+        DecktapeIO.Model.Output
+        ("result_url" := Json.Decode.string)
+        ("title" := Json.Decode.string)
 
 
 
@@ -37,17 +34,17 @@ outputDecoder =
 
 handleSubmissionResults : URL -> Result.Result (Error String) (Response DecktapeIO.Model.Output) -> DecktapeIO.Actions.Action
 handleSubmissionResults source_url result =
-  let
-    r =
-      case result of
-        Result.Ok output ->
-          Result.Ok output.data
+    let
+        r =
+            case result of
+                Result.Ok output ->
+                    Result.Ok output.data
 
-        Result.Err error ->
-          -- TODO: Handle the various flavors of error: UnexpectedPayload, NetworkError, etc.
-          Result.Err "Something went wrong!"
-  in
-    HandleCompletion source_url r
+                Result.Err error ->
+                    -- TODO: Handle the various flavors of error: UnexpectedPayload, NetworkError, etc.
+                    Result.Err "Something went wrong!"
+    in
+        HandleCompletion source_url r
 
 
 
@@ -56,29 +53,29 @@ handleSubmissionResults source_url result =
 
 submitUrl : URL -> Effects Action
 submitUrl presentationUrl =
-  let
-    url =
-      Http.url "/convert" []
+    let
+        url =
+            Http.url "/convert" []
 
-    reader =
-      jsonReader outputDecoder
+        reader =
+            jsonReader outputDecoder
 
-    bodyObj =
-      Json.Encode.object [ ( "url", Json.Encode.string presentationUrl ) ]
+        bodyObj =
+            Json.Encode.object [ ( "url", Json.Encode.string presentationUrl ) ]
 
-    body =
-      (Http.string (Json.Encode.encode 2 bodyObj))
+        body =
+            (Http.string (Json.Encode.encode 2 bodyObj))
 
-    task =
-      post url
-        |> withBody body
-        |> withHeader "Content-type" "application/json"
-        |> send reader stringReader
-  in
-    task
-      |> Task.toResult
-      |> Task.map (handleSubmissionResults presentationUrl)
-      |> Effects.task
+        task =
+            post url
+                |> withBody body
+                |> withHeader "Content-type" "application/json"
+                |> send reader stringReader
+    in
+        task
+            |> Task.toResult
+            |> Task.map (handleSubmissionResults presentationUrl)
+            |> Effects.task
 
 
 
@@ -87,24 +84,42 @@ submitUrl presentationUrl =
 
 update : Action -> Model -> ( Model, Effects.Effects Action )
 update action model =
-  case action of
-    SetCurrentUrl url ->
-      { model | current_url = url } |> noFx
+    case action of
+        SetCurrentUrl url ->
+            { model | current_url = url } |> noFx
 
-    SubmitCurrentUrl ->
-      let
-        newConversion =
-          Conversion model.current_url InProgress
-      in
-        ( { model
-            | current_url = ""
-            , conversions = newConversion :: model.conversions
-          }
-        , submitUrl model.current_url
-        )
+        SubmitCurrentUrl ->
+            let
+                newConversion =
+                    Conversion model.current_url InProgress
+            in
+                ( { model
+                    | current_url = ""
+                    , conversions = newConversion :: model.conversions
+                  }
+                , submitUrl model.current_url
+                )
 
-    HandleCompletion source_url result ->
-      model |> noFx
+        HandleCompletion source_url result ->
+            let
+                status =
+                    case result of
+                        Result.Ok output ->
+                            DecktapeIO.Model.Ok output
+
+                        Result.Err msg ->
+                            DecktapeIO.Model.Err msg
+
+                new_conversion =
+                    Conversion source_url status
+
+                replacer =
+                    replaceIf (\r -> r.source_url == source_url) new_conversion model.conversions
+            in
+                { model
+                    | conversions = replacer
+                }
+                    |> noFx
 
 
 
