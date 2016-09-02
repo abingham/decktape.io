@@ -2,11 +2,11 @@ module DecktapeIO.Model (..) where
 
 
 type alias URL =
-  String
+    String
 
 
 type alias FileID =
-  String
+    String
 
 
 
@@ -14,9 +14,9 @@ type alias FileID =
 
 
 type alias Output =
-  { result_url : URL
-  , file_id : FileID
-  }
+    { result_url : URL
+    , file_id : FileID
+    }
 
 
 
@@ -24,9 +24,9 @@ type alias Output =
 
 
 type Status
-  = InProgress
-  | Ok Output
-  | Err String
+    = InProgress
+    | Ok Output
+    | Err String
 
 
 
@@ -34,9 +34,9 @@ type Status
 
 
 type alias Conversion =
-  { source_url : URL
-  , status : Status
-  }
+    { source_url : URL
+    , status : Status
+    }
 
 
 
@@ -44,9 +44,10 @@ type alias Conversion =
 
 
 type alias Model =
-  { current_url : URL
-  , conversions : List Conversion
-  }
+    { current_url : URL
+    , conversions : List Conversion
+    , candidates : List Output
+    }
 
 
 
@@ -55,6 +56,7 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-  { current_url = "http://localhost:6543/static/shwr.me/index.html"
-  , conversions = []
-  }
+    { current_url = "http://localhost:6543/static/shwr.me/index.html"
+    , conversions = []
+    , candidates = []
+    }

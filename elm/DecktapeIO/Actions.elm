@@ -7,3 +7,4 @@ type Action
   = SetCurrentUrl URL
   | SubmitCurrentUrl
   | HandleCompletion URL (Result String Output)
+  | UpdateCandidates (List Output)

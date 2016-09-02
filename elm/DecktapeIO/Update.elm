@@ -8,7 +8,7 @@ import Effects exposing (Effects)
 import Json.Encode
 import Json.Decode exposing ((:=))
 import Http
-import Http.Extra exposing (Error, jsonReader, post, Response, send, stringReader, withBody, withHeader)
+import Http.Extra exposing (Error, get, jsonReader, post, Response, send, stringReader, withBody, withHeader)
 import List.Extra exposing (replaceIf)
 import Result
 import Task
@@ -47,6 +47,16 @@ handleSubmissionResults source_url result =
         HandleCompletion source_url r
 
 
+handleCandidates : Result.Result (Error String) (Response (List DecktapeIO.Model.Output)) -> DecktapeIO.Actions.Action
+handleCandidates result =
+    case result of
+        Result.Ok candidates ->
+            UpdateCandidates candidates.data
+
+        Result.Err error ->
+            UpdateCandidates []
+
+
 
 -- Submit a request to convert the presentation at `presentationUrl`.
 
@@ -78,6 +88,25 @@ submitUrl presentationUrl =
             |> Effects.task
 
 
+getCandidates : URL -> Effects Action
+getCandidates source_url =
+    let
+        url =
+            Http.url "/candidates" [ ( "url", source_url ) ]
+
+        reader =
+            jsonReader (Json.Decode.list outputDecoder)
+
+        task =
+            get url
+                |> send reader stringReader
+    in
+        task
+            |> Task.toResult
+            |> Task.map handleCandidates
+            |> Effects.task
+
+
 
 -- Central update function.
 
@@ -86,7 +115,9 @@ update : Action -> Model -> ( Model, Effects.Effects Action )
 update action model =
     case action of
         SetCurrentUrl url ->
-            { model | current_url = url } |> noFx
+            ( { model | current_url = url }
+            , getCandidates url
+            )
 
         SubmitCurrentUrl ->
             let
@@ -120,6 +151,9 @@ update action model =
                     | conversions = replacer
                 }
                     |> noFx
+
+        UpdateCandidates candidates ->
+            { model | candidates = candidates } |> noFx
 
 
 
