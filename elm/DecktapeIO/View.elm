@@ -73,21 +73,21 @@ candidatesView model =
         make_row =
             (\cand ->
                 tr_
-                    [ td_ [ text cand.file_id ]
-                    , td_ [ text cand.timestamp ]
-                    , td_ [ a [ href cand.result_url ] [ text "Download" ] ]
+                    [ td_ [ text cand.source_url ]
+                    , td_ [ text cand.info.timestamp ]
+                    , td_ [ a [ href cand.info.result_url ] [ text "Download" ] ]
                     ]
             )
 
         sorted =
-            model.candidates |> List.sortBy .timestamp |> List.reverse
+            model.candidates |> List.sortBy (\r -> r.info.timestamp) |> List.reverse
 
         rows =
             List.map make_row sorted
     in
         tableStriped_
             [ thead_
-                [ th' { class = "text-left" } [ text "File ID" ]
+                [ th' { class = "text-left" } [ text "URL" ]
                 , th' { class = "text-left" } [ text "Timestamp" ]
                 , th' { class = "text-left" } [ text "Link" ]
                 ]

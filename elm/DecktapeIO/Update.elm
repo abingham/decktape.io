@@ -55,5 +55,5 @@ update action model =
                 }
                     |> noFx
 
-        UpdateCandidates candidates ->
-            { model | candidates = candidates } |> noFx
+        UpdateCandidates url candidates ->
+            { model | candidates = List.map (Candidate url) candidates } |> noFx

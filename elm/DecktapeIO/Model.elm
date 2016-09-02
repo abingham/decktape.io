@@ -39,7 +39,10 @@ type alias Conversion =
     , status : Status
     }
 
-
+type alias Candidate =
+    { source_url : URL
+    , info : Output
+    }
 
 -- The top-level application model.
 
@@ -47,7 +50,7 @@ type alias Conversion =
 type alias Model =
     { current_url : URL
     , conversions : List Conversion
-    , candidates : List Output
+    , candidates : List Candidate
     }
 
 

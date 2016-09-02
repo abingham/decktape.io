@@ -33,7 +33,7 @@ getCandidates source_url =
     in
         task
             |> Task.toResult
-            |> Task.map handleCandidates
+            |> Task.map (handleCandidates source_url)
             |> Effects.task
 
 
@@ -41,11 +41,11 @@ getCandidates source_url =
 -- This handles the server's response to a request for candidates.
 
 
-handleCandidates : Result.Result (Error String) (Response (List DecktapeIO.Model.Output)) -> DecktapeIO.Actions.Action
-handleCandidates result =
+handleCandidates : URL -> Result.Result (Error String) (Response (List DecktapeIO.Model.Output)) -> DecktapeIO.Actions.Action
+handleCandidates source_url result =
     case result of
         Result.Ok candidates ->
-            UpdateCandidates candidates.data
+            UpdateCandidates source_url candidates.data
 
         Result.Err error ->
-            UpdateCandidates []
+            UpdateCandidates source_url []
