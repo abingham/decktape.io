@@ -1,19 +1,6 @@
-import gridfs
-import pymongo
 from pyramid.config import Configurator
 
-
-# TODO: Put this in its own file?
-class ResultDB:
-    def __init__(self, gfs):
-        self._gfs = gfs
-
-    def add_pdf(self, name, data):
-        self._gfs.put(data, filename=name)
-
-    def get_pdf(self, name):
-        stored = self._gfs.find_one({'filename': name})
-        return stored.read()
+from .result_db import make_result_db
 
 
 def make_app(global_config=None, **settings):
@@ -26,10 +13,7 @@ def make_app(global_config=None, **settings):
     config.scan()
 
     # Add a result-db to each request.
-    client = pymongo.MongoClient('localhost', 27017)
-    db = client.decktape_io
-    gfs = gridfs.GridFS(db)
-    result_db = ResultDB(gfs)
+    result_db = make_result_db(settings)
     config.add_request_method(
         lambda req: result_db,
         'result_db',
