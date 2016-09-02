@@ -9,7 +9,8 @@ import Json.Decode exposing ((:=))
 
 outputDecoder : Json.Decode.Decoder DecktapeIO.Model.Output
 outputDecoder =
-    Json.Decode.object2
+    Json.Decode.object3
         DecktapeIO.Model.Output
         ("result_url" := Json.Decode.string)
         ("file_id" := Json.Decode.string)
+        ("timestamp" := Json.Decode.string)

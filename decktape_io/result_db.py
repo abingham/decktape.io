@@ -8,11 +8,11 @@ class ResultDB:
         db = client.decktape_io
         self._gfs = gridfs.GridFS(db)
 
-    def add(self, file_id, url, date, data):
+    def add(self, file_id, url, timestamp, data):
         self._gfs.put(data,
                       file_id=file_id,
                       url=url,
-                      date=date)
+                      timestamp=timestamp)
 
     def get(self, file_id):
         stored = self._gfs.find_one({'file_id': file_id})

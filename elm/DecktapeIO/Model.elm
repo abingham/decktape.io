@@ -16,6 +16,7 @@ type alias FileID =
 type alias Output =
     { result_url : URL
     , file_id : FileID
+    , timestamp : String
     }
 
 

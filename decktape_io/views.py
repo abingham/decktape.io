@@ -9,13 +9,14 @@ import tempfile
 import uuid
 
 
-def _make_result(request, file_id, source_url):
+def _make_result(request, file_id, source_url, timestamp):
     result_url = request.route_url('result', file_id=file_id)
 
     return {
         'result_url': result_url,
         'source_url': source_url,
-        'file_id': file_id
+        'file_id': file_id,
+        'timestamp': timestamp.isoformat()
     }
 
 
@@ -48,15 +49,16 @@ def convert(request):
             request.registry.settings['decktape_js_path'],
             url,
             filename]
+        timestamp = datetime.datetime.now()
         subprocess.run(command)
         with open(filename, 'rb') as pdf_file:
             request.result_db.add(
                 file_id,
                 url,
-                datetime.datetime.now(),
+                timestamp,
                 pdf_file.read())
 
-    result = _make_result(request, file_id, url)
+    result = _make_result(request, file_id, url, timestamp)
     return Response(
         body=json.dumps(result),
         content_type='application/json')
@@ -79,7 +81,7 @@ def candidates(request):
     url = request.params['url']
 
     results = [
-        _make_result(request, r.file_id, r.url)
+        _make_result(request, r.file_id, r.url, r.timestamp)
         for r in request.result_db.get_by_url(url)]
 
     return Response(
