@@ -9,7 +9,9 @@ class ResultDB:
         self._gfs = gfs
 
     def add_pdf(self, name, data):
+        print('putting')
         self._gfs.put(data, filename=name)
+        print('done putting')
 
     def get_pdf(self, name):
         stored = self._gfs.find_one({'filename': name})
