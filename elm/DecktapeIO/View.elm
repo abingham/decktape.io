@@ -2,8 +2,8 @@ module DecktapeIO.View (view) where
 
 import DecktapeIO.Actions exposing (..)
 import DecktapeIO.Model
-import Html exposing (a, div, form, fromElement, Html, hr, h1, input, label, node, text)
-import Html.Attributes exposing (class, downloadAs, href, rel, src, type', value)
+import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (on, targetValue)
 import Html.Shorthand exposing (..)
 import Bootstrap.Html exposing (..)
@@ -58,12 +58,17 @@ submittedUrlsView model =
         rows =
             List.map make_row model.conversions
     in
-        tableStriped_
-            [ thead_
-                [ th' { class = "text-left" } [ text "Source URL" ]
-                , th' { class = "text-left" } [ text "Status" ]
+        panelDefault_
+            [ panelHeading_ [ strong [] [ text "Submissions" ] ]
+            , panelBody_
+                [ tableStriped_
+                    [ thead_
+                        [ th' { class = "text-left" } [ text "Source URL" ]
+                        , th' { class = "text-left" } [ text "Status" ]
+                        ]
+                    , tbody_ rows
+                    ]
                 ]
-            , tbody_ rows
             ]
 
 
@@ -85,14 +90,46 @@ candidatesView model =
         rows =
             List.map make_row sorted
     in
-        tableStriped_
-            [ thead_
-                [ th' { class = "text-left" } [ text "URL" ]
-                , th' { class = "text-left" } [ text "Timestamp" ]
-                , th' { class = "text-left" } [ text "Link" ]
+        panelDefault_
+            [ panelHeading_ [ strong [] [ text "Candidates" ] ]
+            , panelBody_
+                [ tableStriped_
+                    [ thead_
+                        [ th' { class = "text-left" } [ text "URL" ]
+                        , th' { class = "text-left" } [ text "Timestamp" ]
+                        , th' { class = "text-left" } [ text "Link" ]
+                        ]
+                    , tbody_ rows
+                    ]
                 ]
-            , tbody_ rows
             ]
+
+
+titleRow : Html
+titleRow =
+    h1 [] [ text "Decktape.io" ]
+
+
+mainForm : Signal.Address Action -> DecktapeIO.Model.Model -> Html
+mainForm address model =
+    row_
+        [ colMd_ 10
+            10
+            10
+            [ input
+                [ type' "text"
+                , class "form-control"
+                , value model.current_url
+                , placeholder "URL of HTML presentation, e.g. http://localhost:6543/static/shwr.me/index.html"
+                , on "input" targetValue (Signal.message address << SetCurrentUrl)
+                ]
+                []
+            ]
+        , colMd_ 2
+            2
+            2
+            [ btnDefault' "" { btnParam | label = Just "Convert!" } address SubmitCurrentUrl ]
+        ]
 
 
 view : Signal.Address Action -> DecktapeIO.Model.Model -> Html
@@ -102,28 +139,11 @@ view address model =
          , stylesheet "/static/bootstrap-theme.min.css"
          , script "/static/jquery.min.js"
          , script "/static/bootstrap.min.js"
+         , titleRow
+         , mainForm address model
          , row_
-            [ colMd_
-                12
-                12
-                12
-                [ form
-                    [ class "form-horizontal" ]
-                    [ label [ class "control-label pull-right" ] [ text "URL:" ]
-                    , input
-                        [ type' "text"
-                        , class "form-control"
-                        , value model.current_url
-                        , on "input" targetValue (Signal.message address << SetCurrentUrl)
-                        ]
-                        []
-                    , btnDefault' "" { btnParam | label = Just "Convert!" } address (SubmitCurrentUrl)
-                    ]
-                ]
+            [ colMd_ 6 6 6 [ submittedUrlsView model ]
+            , colMd_ 6 6 6 [ candidatesView model ]
             ]
-         , text "Submissions"
-         , submittedUrlsView model
-         , text "Candidates"
-         , candidatesView model
          ]
         )
