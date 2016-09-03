@@ -7,7 +7,7 @@ import Effects
 import Effects exposing (Effects)
 import Json.Encode
 import Http
-import Http.Extra exposing (Error, get, jsonReader, post, Response, send, stringReader, withBody, withHeader)
+import Http.Extra exposing (..)
 import Result
 import Task
 
@@ -17,6 +17,13 @@ import Task
 -- This results in a `HandleCompletion` action which will be handled
 -- separately.
 
+errorToString : Error String -> String
+errorToString err =
+    case err of
+        UnexpectedPayload msg -> msg
+        NetworkError -> "Network error"
+        Timeout -> "Timeout"
+        BadResponse r -> r.statusText
 
 handleSubmissionResults : URL -> Result.Result (Error String) (Response DecktapeIO.Model.Output) -> DecktapeIO.Actions.Action
 handleSubmissionResults source_url result =
@@ -28,7 +35,7 @@ handleSubmissionResults source_url result =
 
                 Result.Err error ->
                     -- TODO: Handle the various flavors of error: UnexpectedPayload, NetworkError, etc.
-                    Result.Err "Something went wrong!"
+                    Result.Err (errorToString error)
     in
         HandleCompletion source_url r
 

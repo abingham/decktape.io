@@ -1,3 +1,4 @@
+import pyramid.httpexceptions
 from pyramid.response import FileResponse, Response
 from pyramid.view import view_config
 
@@ -50,7 +51,12 @@ def convert(request):
             url,
             filename]
         timestamp = datetime.datetime.now()
-        subprocess.run(command)
+
+        try:
+            subprocess.run(command, check=True)
+        except subprocess.CalledProcessError:
+            raise pyramid.httpexceptions.HTTPClientError()
+
         with open(filename, 'rb') as pdf_file:
             request.result_db.add(
                 file_id,
