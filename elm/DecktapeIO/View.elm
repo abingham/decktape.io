@@ -107,7 +107,9 @@ candidatesView model =
 
 titleRow : Html
 titleRow =
-    h1 [] [ text "Decktape.io" ]
+    div [ class "page-header" ]
+        [ h1 [] [ text "Decktape.io ", small [] [ text "HTML presentation conversion" ] ]
+        ]
 
 
 mainForm : Signal.Address Action -> DecktapeIO.Model.Model -> Html
