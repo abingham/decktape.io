@@ -1,16 +1,7 @@
-module DecktapeIO (..) where
+module DecktapeIO exposing (..)
 
 import DecktapeIO.App exposing (app)
-import Html
-import Task
-import Effects exposing (Effects)
 
-
-main : Signal Html.Html
+main : Program Never
 main =
-  app.html
-
-
-port tasks : Signal (Task.Task Effects.Never ())
-port tasks =
-  app.tasks
+  app

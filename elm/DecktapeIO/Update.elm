@@ -1,20 +1,18 @@
-module DecktapeIO.Update (update) where
+module DecktapeIO.Update exposing (update)
 
-import DecktapeIO.Actions exposing (..)
+import DecktapeIO.Msg exposing (..)
 import DecktapeIO.Effects exposing (noFx)
 import DecktapeIO.Model exposing (..)
 import DecktapeIO.Update.Candidates exposing (..)
 import DecktapeIO.Update.Submission exposing (..)
-import Effects
-import Effects exposing (Effects)
 import List.Extra exposing (replaceIf)
+import Platform.Cmd exposing (Cmd)
 import Result
 
 
 -- Central update function.
 
-
-update : Action -> Model -> ( Model, Effects.Effects Action )
+update : Msg -> Model -> (Model, Cmd Msg)
 update action model =
     case action of
         SetCurrentUrl url ->

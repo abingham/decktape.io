@@ -1,4 +1,4 @@
-module DecktapeIO.Model (..) where
+module DecktapeIO.Model exposing (..)
 
 
 type alias URL =

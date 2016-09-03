@@ -1,8 +1,8 @@
-module DecktapeIO.Effects (noFx) where
+module DecktapeIO.Effects exposing (noFx)
 
-import Effects
+import Platform.Cmd
 
 
-noFx : model -> ( model, Effects.Effects a )
+noFx : model -> ( model, Platform.Cmd.Cmd a )
 noFx model =
-  ( model, Effects.none )
+  ( model, Platform.Cmd.none )

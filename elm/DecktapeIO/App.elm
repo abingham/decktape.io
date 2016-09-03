@@ -1,16 +1,16 @@
-module DecktapeIO.App (app) where
+module DecktapeIO.App exposing (app)
 
 import DecktapeIO.Effects exposing (noFx)
 import DecktapeIO.Model exposing (initialModel, Model)
 import DecktapeIO.Update exposing (update)
 import DecktapeIO.View exposing (view)
-import StartApp
+import Html.App as Html
 
-app : StartApp.App Model
+app : Program Never
 app =
-  StartApp.start
+  Html.program
     { init = noFx initialModel
     , view = view
     , update = update
-    , inputs = []
+    , subscriptions = (\_ -> Sub.none)
     }

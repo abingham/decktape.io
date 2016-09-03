@@ -1,4 +1,4 @@
-module DecktapeIO.Update.Json (..) where
+module DecktapeIO.Update.Json exposing (..)
 
 import DecktapeIO.Model
 import Json.Decode

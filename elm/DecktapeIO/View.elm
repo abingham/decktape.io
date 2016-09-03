@@ -1,20 +1,20 @@
-module DecktapeIO.View (view) where
+module DecktapeIO.View exposing (view)
 
-import DecktapeIO.Actions exposing (..)
 import DecktapeIO.Model
+import DecktapeIO.Msg exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (on, targetValue)
+import Html.Events exposing (onInput)
 import Html.Shorthand exposing (..)
 import Bootstrap.Html exposing (..)
 
 
-stylesheet : String -> Html
+stylesheet : String -> Html Msg
 stylesheet url =
     node "link" [ rel "stylesheet", href url ] []
 
 
-script : String -> Html
+script : String -> Html Msg
 script url =
     node "script" [ src url ] []
 
@@ -23,7 +23,7 @@ script url =
 -- Display of a single conversion request status.
 
 
-statusToRow : DecktapeIO.Model.Status -> Html
+statusToRow : DecktapeIO.Model.Status -> Html Msg
 statusToRow status =
     case status of
         DecktapeIO.Model.InProgress ->
@@ -44,7 +44,7 @@ statusToRow status =
 -- Display for the collection of URLs submitted for conversion.
 
 
-submittedUrlsView : DecktapeIO.Model.Model -> Html
+submittedUrlsView : DecktapeIO.Model.Model -> Html Msg
 submittedUrlsView model =
     let
         make_row =
@@ -72,7 +72,7 @@ submittedUrlsView model =
             ]
 
 
-candidatesView : DecktapeIO.Model.Model -> Html
+candidatesView : DecktapeIO.Model.Model -> Html Msg
 candidatesView model =
     let
         make_row =
@@ -105,15 +105,15 @@ candidatesView model =
             ]
 
 
-titleRow : Html
+titleRow : Html Msg
 titleRow =
     div [ class "page-header" ]
         [ h1 [] [ text "Decktape.io ", small [] [ text "HTML presentation conversion" ] ]
         ]
 
 
-mainForm : Signal.Address Action -> DecktapeIO.Model.Model -> Html
-mainForm address model =
+mainForm : DecktapeIO.Model.Model -> Html Msg
+mainForm model =
     row_
         [ colMd_ 10
             10
@@ -123,26 +123,26 @@ mainForm address model =
                 , class "form-control"
                 , value model.current_url
                 , placeholder "URL of HTML presentation, e.g. http://localhost:6543/static/shwr.me/index.html"
-                , on "input" targetValue (Signal.message address << SetCurrentUrl)
+                , onInput SetCurrentUrl
                 ]
                 []
             ]
         , colMd_ 2
             2
             2
-            [ btnDefault' "" { btnParam | label = Just "Convert!" } address SubmitCurrentUrl ]
+            [ btnDefault' "" { btnParam | label = Just "Convert!" } SubmitCurrentUrl ]
         ]
 
 
-view : Signal.Address Action -> DecktapeIO.Model.Model -> Html
-view address model =
+view : DecktapeIO.Model.Model -> Html Msg
+view model =
     containerFluid_
         ([ stylesheet "/static/bootstrap.min.css"
          , stylesheet "/static/bootstrap-theme.min.css"
          , script "/static/jquery.min.js"
          , script "/static/bootstrap.min.js"
          , titleRow
-         , mainForm address model
+         , mainForm model
          , row_
             [ colMd_ 6 6 6 [ submittedUrlsView model ]
             , colMd_ 6 6 6 [ candidatesView model ]

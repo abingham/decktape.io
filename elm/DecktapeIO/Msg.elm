@@ -1,9 +1,9 @@
-module DecktapeIO.Actions (..) where
+module DecktapeIO.Msg exposing (..)
 
 import DecktapeIO.Model exposing (Output, URL)
 import Result exposing (Result)
 
-type Action
+type Msg
   = SetCurrentUrl URL
   | SubmitCurrentUrl
   | HandleCompletion URL (Result String Output)
