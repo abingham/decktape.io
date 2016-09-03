@@ -1,18 +1,62 @@
 module DecktapeIO.Update exposing (update)
 
+import DecktapeIO.Comms exposing (..)
 import DecktapeIO.Msg exposing (..)
 import DecktapeIO.Effects exposing (noFx)
 import DecktapeIO.Model exposing (..)
-import DecktapeIO.Update.Candidates exposing (..)
-import DecktapeIO.Update.Submission exposing (..)
+import Http
+import Json.Decode
+import Json.Encode
 import List.Extra exposing (replaceIf)
 import Platform.Cmd exposing (Cmd)
 import Result
+import Task
+
+
+submitUrl : URL -> Platform.Cmd.Cmd Msg
+submitUrl presentationUrl =
+    let
+        url =
+            Http.url "/convert" []
+
+        bodyObj =
+            Json.Encode.object [ ( "url", Json.Encode.string presentationUrl ) ]
+
+        body =
+            (Http.string (Json.Encode.encode 2 bodyObj))
+
+        task =
+            Http.post
+                outputDecoder
+                url
+                body
+    in
+        Task.perform
+            (\err -> HandleCompletion presentationUrl (Result.Err (errorToString err)))
+            (\output -> HandleCompletion presentationUrl (Result.Ok output))
+            task
+
+
+getCandidates : URL -> Cmd Msg
+getCandidates source_url =
+    let
+        url =
+            Http.url "/candidates" [ ( "url", source_url ) ]
+
+        task =
+            Http.get (Json.Decode.list outputDecoder) url
+    in
+        Task.perform
+            (\x -> UpdateCandidates source_url [])
+            (\candidates -> UpdateCandidates source_url candidates)
+            task
+
 
 
 -- Central update function.
 
-update : Msg -> Model -> (Model, Cmd Msg)
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update action model =
     case action of
         SetCurrentUrl url ->
