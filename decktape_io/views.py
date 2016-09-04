@@ -21,14 +21,6 @@ def _make_result(request, file_id, source_url, timestamp):
     }
 
 
-@view_config(route_name='home')
-def main_view_in_elm(request):
-    response = FileResponse('elm/index.html',
-                            request=request,
-                            content_type='text/html')
-    return response
-
-
 @view_config(route_name='convert',
              request_method='POST',
              renderer='json')

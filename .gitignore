@@ -1,10 +1,11 @@
 decktape_io.egg-info
 build
 dist
-elm/elm-stuff
-elm/index.html
+decktape_io/elm/elm-stuff
+decktape_io/elm/decktape_io.js
 __pycache__
 *pyc
+.csearchindex
 
 # We might have a decktape installation hanging around. Ignore it.
 decktape
