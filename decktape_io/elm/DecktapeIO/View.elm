@@ -46,18 +46,22 @@ submittedUrlsView model =
 
         rows =
             List.map make_row model.conversions
-    in
-        panelDefault_
-            [ panelHeading_ [ strong [] [ text "Submissions" ] ]
-            , panelBody_
-                [ tableStriped_
+
+        body =
+            if (List.isEmpty rows) then
+                (em [] [ text "No submissions" ])
+            else
+                tableStriped_
                     [ thead_
                         [ th' { class = "text-left" } [ text "Source URL" ]
                         , th' { class = "text-left" } [ text "Status" ]
                         ]
                     , tbody_ rows
                     ]
-                ]
+    in
+        panelDefault_
+            [ panelHeading_ [ strong [] [ text "Submissions" ] ]
+            , panelBody_ [ body ]
             ]
 
 
@@ -78,11 +82,12 @@ candidatesView model =
 
         rows =
             List.map make_row sorted
-    in
-        panelDefault_
-            [ panelHeading_ [ strong [] [ text "Candidates" ] ]
-            , panelBody_
-                [ tableStriped_
+
+        body =
+            if (List.isEmpty rows) then
+                (em [] [ text "No candidates" ])
+            else
+                tableStriped_
                     [ thead_
                         [ th' { class = "text-left" } [ text "URL" ]
                         , th' { class = "text-left" } [ text "Timestamp" ]
@@ -90,7 +95,10 @@ candidatesView model =
                         ]
                     , tbody_ rows
                     ]
-                ]
+    in
+        panelDefault_
+            [ panelHeading_ [ strong [] [ text "Candidates" ] ]
+            , panelBody_ [ body ]
             ]
 
 
@@ -112,14 +120,14 @@ mainForm model =
         , colMd_ 2
             2
             2
-            [ btnDefault' "" { btnParam | label = Just "Convert!" } SubmitCurrentUrl ]
+            [ btnPrimary' "" { btnParam | label = Just "Convert!" } SubmitCurrentUrl ]
         ]
 
 
 view : DecktapeIO.Model.Model -> Html Msg
 view model =
     containerFluid_
-        ([ mainForm model
+        ([ div [(class "well")] [mainForm model]
          , row_
             [ colMd_ 6 6 6 [ submittedUrlsView model ]
             , colMd_ 6 6 6 [ candidatesView model ]
