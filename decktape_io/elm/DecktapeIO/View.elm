@@ -73,7 +73,7 @@ candidatesView model =
                 tr_
                     [ td_ [ text cand.source_url ]
                     , td_ [ text cand.info.timestamp ]
-                    , td_ [ a [ href cand.info.result_url ] [ text "Download" ] ]
+                    , td_ [ a [ href cand.info.result_url, downloadAs (cand.info.file_id ++ ".pdf") ] [ text "Download" ] ]
                     ]
             )
 
