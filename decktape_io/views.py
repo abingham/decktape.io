@@ -1,5 +1,5 @@
 import pyramid.httpexceptions
-from pyramid.response import FileResponse, Response
+from pyramid.response import Response
 from pyramid.view import view_config
 
 import datetime
@@ -19,6 +19,11 @@ def _make_result(request, file_id, source_url, timestamp):
         'file_id': file_id,
         'timestamp': timestamp.isoformat()
     }
+
+
+@view_config(route_name='root', request_method='GET')
+def root(request):
+    raise pyramid.httpexceptions.HTTPFound("decktape/")
 
 
 @view_config(route_name='convert',
