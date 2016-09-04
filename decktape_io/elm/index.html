@@ -1,8 +1,19 @@
 <html>
-    <div id="decktape-io"></div>
-    <script src="decktape_io.js"></script>
-    <script>
-     var node = document.getElementById('decktape-io');
-     var app = Elm.DecktapeIO.embed(node);
-    </script>
+    <head>
+        <link rel="stylesheet" href="/static/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/bootstrap-theme.min.css">
+        <script src="/static/jquery.min.js"></script>
+        <script src="/static/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div class="page-header">
+            <h1>Decktape.io <small>HTML presentation conversion</small></h1>
+        </div>
+        <div id="decktape-io"></div>
+        <script src="decktape_io.js"></script>
+        <script>
+         var node = document.getElementById('decktape-io');
+         var app = Elm.DecktapeIO.embed(node);
+        </script>
+    </body>
 </html>

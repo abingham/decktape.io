@@ -9,17 +9,6 @@ import Html.Shorthand exposing (..)
 import Bootstrap.Html exposing (..)
 
 
-stylesheet : String -> Html Msg
-stylesheet url =
-    node "link" [ rel "stylesheet", href url ] []
-
-
-script : String -> Html Msg
-script url =
-    node "script" [ src url ] []
-
-
-
 -- Display of a single conversion request status.
 
 
@@ -105,13 +94,6 @@ candidatesView model =
             ]
 
 
-titleRow : Html Msg
-titleRow =
-    div [ class "page-header" ]
-        [ h1 [] [ text "Decktape.io ", small [] [ text "HTML presentation conversion" ] ]
-        ]
-
-
 mainForm : DecktapeIO.Model.Model -> Html Msg
 mainForm model =
     row_
@@ -137,12 +119,7 @@ mainForm model =
 view : DecktapeIO.Model.Model -> Html Msg
 view model =
     containerFluid_
-        ([ stylesheet "/static/bootstrap.min.css"
-         , stylesheet "/static/bootstrap-theme.min.css"
-         , script "/static/jquery.min.js"
-         , script "/static/bootstrap.min.js"
-         , titleRow
-         , mainForm model
+        ([ mainForm model
          , row_
             [ colMd_ 6 6 6 [ submittedUrlsView model ]
             , colMd_ 6 6 6 [ candidatesView model ]
