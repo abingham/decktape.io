@@ -60,7 +60,7 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-    { current_url = "http://localhost:6543/static/shwr.me/index.html"
+    { current_url = ""
     , conversions = []
     , candidates = []
     }

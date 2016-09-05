@@ -111,7 +111,7 @@ mainForm model =
                     [ type' "text"
                     , class "form-control"
                     , value model.current_url
-                    , placeholder "URL of HTML presentation, e.g. http://localhost:6543/static/shwr.me/index.html"
+                    , placeholder "URL of HTML presentation, e.g. http://www.w3.org/Talks/Tools/Slidy"
                     , onInput SetCurrentUrl
                     ]
                     []
