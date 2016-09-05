@@ -104,33 +104,31 @@ candidatesView model =
 
 mainForm : DecktapeIO.Model.Model -> Html Msg
 mainForm model =
-    row_
-        [ colMd_ 10
-            10
-            10
-            [ input
-                [ type' "text"
-                , class "form-control"
-                , value model.current_url
-                , placeholder "URL of HTML presentation, e.g. http://localhost:6543/static/shwr.me/index.html"
-                , onInput SetCurrentUrl
+    div [ class "row" ]
+        [ div [ class "col-md-12" ]
+            [ div [ class "input-group" ]
+                [ input
+                    [ type' "text"
+                    , class "form-control"
+                    , value model.current_url
+                    , placeholder "URL of HTML presentation, e.g. http://localhost:6543/static/shwr.me/index.html"
+                    , onInput SetCurrentUrl
+                    ]
+                    []
+                , span
+                    [ class "input-group-btn" ]
+                    [ btnDefault' "input-control" { btnParam | label = Just "Convert!" } SubmitCurrentUrl ]
                 ]
-                []
             ]
-        , colMd_ 2
-            2
-            2
-            [ btnPrimary' "" { btnParam | label = Just "Convert!" } SubmitCurrentUrl ]
         ]
 
 
 view : DecktapeIO.Model.Model -> Html Msg
 view model =
-    containerFluid_
-        ([ div [(class "well")] [mainForm model]
-         , row_
+    div []
+        [ div [ class "well" ] [ mainForm model ]
+        , row_
             [ colMd_ 6 6 6 [ submittedUrlsView model ]
             , colMd_ 6 6 6 [ candidatesView model ]
             ]
-         ]
-        )
+        ]
