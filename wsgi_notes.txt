@@ -1,0 +1,7 @@
+To run this as a wsgi server under nginx:
+
+1. Use the nginx.conf (or at least the relevant parts) to make nginx look for the wsgi server on localhost:8080
+2. Run nginx.
+3. Run "pserve production.ini" to start a wsgi server proxied by nginx.
+
+That should do it.
