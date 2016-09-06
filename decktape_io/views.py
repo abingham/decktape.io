@@ -2,12 +2,10 @@ import pyramid.httpexceptions
 from pyramid.response import Response
 from pyramid.view import view_config
 
-import datetime
 import json
-import os.path
-import subprocess
-import tempfile
 import uuid
+
+from .worker import convert_url
 
 
 def _make_result(request, file_id, source_url, timestamp):
@@ -38,34 +36,26 @@ def convert(request):
     """
     url = request.json_body['url']
     file_id = str(uuid.uuid1())
-    # TODO: Request that conversion of 'url' be done, associated with the job-id for later retrieval.
 
-    with tempfile.TemporaryDirectory() as tempdir:
-        filename = os.path.join(tempdir, file_id)
-        command = [
-            request.registry.settings['decktape_phantomjs_path'],
-            request.registry.settings['decktape_js_path'],
-            url,
-            filename]
-        timestamp = datetime.datetime.now()
+    convert_url(
+        file_id, url,
+        request.registry.settings['mongodb_host'],
+        int(request.registry.settings['mongodb_port']),
+        request.registry.settings['decktape_phantomjs_path'],
+        request.registry.settings['decktape_js_path'])
 
-        try:
-            subprocess.run(command, check=True)
-        except subprocess.CalledProcessError:
-            raise pyramid.httpexceptions.HTTPClientError()
+    result = {
+        'source_url': url,
+        'file_id': file_id
+    }
 
-        with open(filename, 'rb') as pdf_file:
-            request.result_db.add(
-                file_id,
-                url,
-                timestamp,
-                pdf_file.read())
-
-    result = _make_result(request, file_id, url, timestamp)
     return Response(
         body=json.dumps(result),
         content_type='application/json')
 
+# TODO: Need to implement polling API. This will include a URL for doing the
+# polling as well as changes to the database so that it can store information
+# about current state.
 
 @view_config(route_name='result',
              request_method='GET')
