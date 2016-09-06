@@ -30,12 +30,13 @@ def root(request):
 def convert(request):
     """Call this to ask for the conversion of a URL.
 
-    Responds with a JSON object with a 'path' field indicating where the output
-    file can be found.
+    Responds with a JSON object with a 'file_id' which can be used to poll for results.
 
     """
     url = request.json_body['url']
     file_id = str(uuid.uuid1())
+
+    request.result_db.create(file_id, url)
 
     convert_url(
         file_id, url,
@@ -53,9 +54,16 @@ def convert(request):
         body=json.dumps(result),
         content_type='application/json')
 
-# TODO: Need to implement polling API. This will include a URL for doing the
-# polling as well as changes to the database so that it can store information
-# about current state.
+
+@view_config(route_name='status',
+             request_method='GET')
+def status(request):
+    entry = request.result_db.get(
+        request.matchdict['file_id'])
+    return Response(
+        entry.metadata,
+        content_type='application/json')
+
 
 @view_config(route_name='result',
              request_method='GET')
