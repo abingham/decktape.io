@@ -1,4 +1,3 @@
-import datetime
 import os
 import subprocess
 import tempfile
@@ -52,28 +51,27 @@ def worker_task(file_id,
     # TODO: On failure, we need to write something to the DB so clients can
     # know that no output is going to be generated.
 
-    with tempfile.TemporaryDirectory() as tempdir:
-        filename = os.path.join(tempdir, file_id)
-        command = [
-            phantomjs_path,
-            decktapejs_path,
-            url,
-            filename]
-
-        timestamp = datetime.datetime.now()
-
-        try:
-            subprocess.run(command, check=True)
-        except subprocess.CalledProcessError:
-            raise pyramid.httpexceptions.HTTPClientError()
-
-        with open(filename, 'rb') as pdf_file:
-            result_db.add(
-                file_id,
+    try:
+        with tempfile.TemporaryDirectory() as tempdir:
+            filename = os.path.join(tempdir, file_id)
+            command = [
+                phantomjs_path,
+                decktapejs_path,
                 url,
-                timestamp,
-                pdf_file.read())
+                filename]
 
+            try:
+                subprocess.run(command, check=True)
+            except subprocess.CalledProcessError:
+                raise pyramid.httpexceptions.HTTPClientError()
+
+            with open(filename, 'rb') as pdf_file:
+                result_db.update(
+                    file_id,
+                    pdf_file.read())
+    except Exception as e:
+        msg = 'Error performing conversion: {}'.format(e)
+        result_db.set_erro(file_id, msg)
 
 def convert_url(*args):
     return worker_task.delay(*args)
