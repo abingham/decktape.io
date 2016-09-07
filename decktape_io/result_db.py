@@ -1,15 +1,12 @@
 from collections import namedtuple
 import datetime
-from enum import Enum
 
 import gridfs
-import pymongo
 
 
-class Status(Enum):
-    in_progress = 1
-    complete = 2
-    error = 3
+IN_PROGRESS = 1
+COMPLETE= 2
+ERROR = 3
 
 Metadata = namedtuple('Metadata',
                       ['file_id',
@@ -25,12 +22,12 @@ class ResultDB:
         self._files = gridfs.GridFS(db)
 
         # Mapping of file-id to _id in _files.
-        self._refs = db.file_ids
+        self._refs = db['file_ids']
 
     def create(self, file_id, url):
         """Create a new, empty result file.
 
-        This result will have the status `in_progress`. You should update it
+        This result will have the status `IN_PROGRESS`. You should update it
         later with results.
 
         """
@@ -38,11 +35,11 @@ class ResultDB:
             file_id=file_id,
             url=url,
             timestamp=datetime.datetime.now(),
-            status=Status.in_progress,
+            status=IN_PROGRESS,
             status_msg="in progress")
 
-        storage_id = self._files.put(b'', **metadata)
-        self._refs.put({'storage_id': storage_id, 'file_id': file_id})
+        storage_id = self._files.put(b'', **metadata._asdict())
+        self._refs.insert_one({'storage_id': storage_id, 'file_id': file_id})
 
     def update(self, file_id, data):
         """Update the contents of a result.
@@ -63,9 +60,9 @@ class ResultDB:
         entry = Metadata(file_id=file_id,
                          url=old_result.url,
                          timestamp=datetime.datetime.now(),
-                         status=Status.complete,
+                         status=COMPLETE,
                          status_msg='complete')
-        new_storage_id = self._files.put(data, **entry)
+        new_storage_id = self._files.put(data, **entry._asdict())
 
         # Update refs to point to new storage
         self._refs.find_one_and_update(
@@ -88,7 +85,7 @@ class ResultDB:
         # https://docs.mongodb.com/manual/core/gridfs/#the-files-collection
         self._files.fs.files.find_one_and_update(
             {'_id': ref.storage_id},
-            {'$set': {'status': Status.error, 'error_msg': error_msg}})
+            {'$set': {'status': ERROR, 'error_msg': error_msg}})
 
     def get(self, file_id):
         ref = self._refs.find_one({'file_id': file_id})

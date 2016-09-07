@@ -4,6 +4,7 @@ import pytest
 import uuid
 
 
+@pytest.fixture()
 def single_use_db():
     client = pymongo.MongoClient('localhost', 27017)
     db = client['decktape_io_unittests']
@@ -20,10 +21,10 @@ def db():
 
 
 def test_empty_on_construction(single_use_db):
-    assert len(single_use_db) == 0
+    assert len(list(single_use_db)) == 0
 
 
 def test_create_adds_entry(db):
-    original_size = len(db)
+    original_size = len(list(db))
     db.create(uuid.uuid1(), 'http://example.com')
-    assert len(db) == original_size + 1
+    assert len(list(db)) == original_size + 1
