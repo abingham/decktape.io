@@ -36,6 +36,7 @@ class ResultDB:
         client = pymongo.MongoClient(host, port)
         db = client.decktape_io
         self._gfs = gridfs.GridFS(db)
+        self._file_ids = db.file_ids
 
     def create(self, file_id, url):
         entry = Entry(file_id=file_id,
@@ -44,22 +45,26 @@ class ResultDB:
                       status=Status.in_progress,
                       status_msg="in progress")
 
-        self._gfs.put(b'', **entry)
+        entry_id = self._gfs.put(b'', **entry)
+        self._file_ids.put({'entry_id': entry_id, 'file_id': file_id})
 
     def update(self, file_id, data):
-        old_entry = self._gfs.find_one({'file_id': file_id})
-
-        if not old_entry:
+        old_file_entry = self._file_ids.find_one({'file_id': file_id})
+        if not old_file_entry:
             raise KeyError(
                 'No entry with ID={}'.format(file_id))
 
+        old_entry_id = old_file_entry['entry_id']
+
         entry = Entry(file_id=file_id,
-                      url=old_entry.url,
+                      url=old_file_entry.url,
                       timestamp=datetime.datetime.now(),
                       status=Status.complete,
                       status_msg='complete')
-        self._gfs.put(data, **entry)
-        self._gfs.delete(old_entry._id)
+        new_entry_id = self._gfs.put(data, **entry)
+        self._gfs.delete(old_entry_id)
+        self._file_ids.delete_many({'file_id': file_id})
+        self._file_ids.put({'entry_id': new_entry_id, 'file_id': file_id})
 
     def get(self, file_id):
         entries = self._gfs.find({'file_id': file_id})
