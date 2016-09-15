@@ -47,7 +47,8 @@ def convert(request):
 
     result = {
         'source_url': url,
-        'file_id': file_id
+        'file_id': file_id,
+        'status_url': request.route_url('status', file_id=file_id)
     }
 
     return Response(
