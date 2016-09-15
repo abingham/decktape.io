@@ -22,7 +22,7 @@ app.conf.CELERY_TASK_SERIALIZER = 'json'
 app.conf.CELERY_RESULT_SERIALIZER = 'json'
 
 
-@app.task(name='dektape_io.worker')
+@app.task(name='decktape_io.worker')
 def worker_task(file_id,
                 url,
                 db_host,
@@ -72,6 +72,7 @@ def worker_task(file_id,
     except Exception as e:
         msg = 'Error performing conversion: {}'.format(e)
         result_db.set_erro(file_id, msg)
+
 
 def convert_url(*args):
     return worker_task.delay(*args)

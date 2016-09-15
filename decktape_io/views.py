@@ -38,12 +38,12 @@ def convert(request):
 
     request.result_db.create(file_id, url)
 
-    convert_url(
-        file_id, url,
-        request.registry.settings['mongodb_host'],
-        int(request.registry.settings['mongodb_port']),
-        request.registry.settings['decktape_phantomjs_path'],
-        request.registry.settings['decktape_js_path'])
+    #convert_url(
+    #    file_id, url,
+    #    request.registry.settings['mongodb_host'],
+    #    int(request.registry.settings['mongodb_port']),
+    #    request.registry.settings['decktape_phantomjs_path'],
+    #    request.registry.settings['decktape_js_path'])
 
     result = {
         'source_url': url,
@@ -56,12 +56,18 @@ def convert(request):
 
 
 @view_config(route_name='status',
-             request_method='GET')
+             request_method='GET',
+             renderer='json')
 def status(request):
     entry = request.result_db.get(
         request.matchdict['file_id'])
+
+    md = dict(entry.metadata)
+
+    # TODO: Better to use a proper json decoder for timestamps.
+    md['timestamp'] = md['timestamp'].isoformat()
     return Response(
-        entry.metadata,
+        json.dumps(md),
         content_type='application/json')
 
 

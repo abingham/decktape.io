@@ -12,18 +12,21 @@ import Bootstrap.Html exposing (..)
 -- Display of a single conversion request status.
 
 
-statusToRow : DecktapeIO.Model.Status -> Html Msg
+statusToRow : DecktapeIO.Model.ConversionStatus -> Html Msg
 statusToRow status =
     case status of
-        DecktapeIO.Model.InProgress ->
+        DecktapeIO.Model.Initiated ->
+            text "Initiated"
+
+        DecktapeIO.Model.InProgress file_id ->
             text "In progress"
 
-        DecktapeIO.Model.Ok output ->
+        DecktapeIO.Model.Ok file_id download_url->
             let
                 filename =
-                    output.file_id ++ ".pdf"
+                    file_id ++ ".pdf"
             in
-                a [ href output.result_url, downloadAs filename ] [ text "Download" ]
+                a [ href download_url, downloadAs filename ] [ text "Download" ]
 
         DecktapeIO.Model.Err msg ->
             text msg
@@ -72,13 +75,13 @@ candidatesView model =
             (\cand ->
                 tr_
                     [ td_ [ text cand.source_url ]
-                    , td_ [ text cand.info.timestamp ]
-                    , td_ [ a [ href cand.info.result_url, downloadAs (cand.info.file_id ++ ".pdf") ] [ text "Download" ] ]
+                    , td_ [ text cand.timestamp ]
+                    , td_ [ a [ href cand.download_url, downloadAs (cand.file_id ++ ".pdf") ] [ text "Download" ] ]
                     ]
             )
 
         sorted =
-            model.candidates |> List.sortBy (\r -> r.info.timestamp) |> List.reverse
+            model.candidates |> List.sortBy (\r -> r.timestamp) |> List.reverse
 
         rows =
             List.map make_row sorted

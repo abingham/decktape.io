@@ -34,11 +34,9 @@ errorToString err =
 
 -- Decodes the JSON response from a conversion request into an `Output`.
 
-
-outputDecoder : Json.Decode.Decoder DecktapeIO.Model.Output
-outputDecoder =
-    Json.Decode.object3
-        DecktapeIO.Model.Output
-        ("result_url" := Json.Decode.string)
+pendingConversionDecoder : Json.Decode.Decoder DecktapeIO.Model.PendingConversion
+pendingConversionDecoder =
+    Json.Decode.object2
+        DecktapeIO.Model.PendingConversion
         ("file_id" := Json.Decode.string)
-        ("timestamp" := Json.Decode.string)
+        ("status_url" := Json.Decode.string)

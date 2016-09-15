@@ -5,7 +5,7 @@ import gridfs
 
 
 IN_PROGRESS = 1
-COMPLETE= 2
+COMPLETE = 2
 ERROR = 3
 
 Metadata = namedtuple('Metadata',
@@ -38,7 +38,7 @@ class ResultDB:
             status=IN_PROGRESS,
             status_msg="in progress")
 
-        storage_id = self._files.put(b'', **metadata._asdict())
+        storage_id = self._files.put(b'', metadata=metadata._asdict())
         self._refs.insert_one({'storage_id': storage_id, 'file_id': file_id})
 
     def update(self, file_id, data):
@@ -96,8 +96,3 @@ class ResultDB:
 
     def __iter__(self):
         return self._files.find()
-
-# def make_result_db(settings):
-#     return ResultDB(
-#         settings['mongodb_host'],
-#         int(settings['mongodb_port']))
