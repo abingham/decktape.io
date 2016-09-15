@@ -67,6 +67,10 @@ def status(request):
 
     # TODO: Better to use a proper json decoder for timestamps.
     md['timestamp'] = md['timestamp'].isoformat()
+
+    # TODO: If the conversion is complete, we should insert a download link as
+    # well. Perhaps we could just stick that in the status_msg.
+
     return Response(
         json.dumps(md),
         content_type='application/json')

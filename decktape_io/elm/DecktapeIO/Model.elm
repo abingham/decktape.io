@@ -9,35 +9,42 @@ type alias FileID =
     String
 
 
+type alias Timestamp =
+    String
 
--- Response to a conversion request (i.e. ready for polling)
-type alias PendingConversion =
-    {file_id : FileID
-    , status_url: URL
+
+
+-- The result of a successful call to /status
+
+-- TODO: Experiment with extensible records here. And see how they improve (if at all) the update functions.)
+type alias StatusLocator =
+    { file_id : FileID
+    , status_url : URL
     }
 
--- Details of completed conversion (i.e. ready to download)
-type alias CompletedConversion =
-    {file_id: FileID
-    , download_url: URL
-    }
 
--- Status of a conversion. Either initiated but not complete, complete, or
--- errored.
-type
-    ConversionStatus
-    -- file-id and status URL
-    = InProgress PendingConversion
-      -- file id and download URL
-    | Ok CompletedConversion
-    | Err String
+type alias InProgressDetails =
+    { timestamp : Timestamp, status_msg : String, locator: StatusLocator }
+
+
+type alias CompleteDetails =
+    { locator : StatusLocator, timestamp : Timestamp, download_url : URL }
 
 
 
 -- Full details of a single conversion
+
+
+type ConversionDetails
+    = Initiated StatusLocator
+    | InProgress InProgressDetails
+    | Complete CompleteDetails
+    | Error String
+
+
 type alias Conversion =
     { source_url : URL
-    , status : ConversionStatus
+    , details : ConversionDetails
     }
 
 
@@ -45,7 +52,7 @@ type alias Candidate =
     { source_url : URL
     , download_url : URL
     , file_id : FileID
-    , timestamp : String
+    , timestamp : Timestamp
     }
 
 
@@ -66,7 +73,7 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-    { current_url = ""
+    { current_url = "w3.org/Talks/Tools/Slidy"
     , conversions = []
     , candidates = []
     }

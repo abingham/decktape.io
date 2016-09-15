@@ -4,54 +4,107 @@ import DecktapeIO.Comms exposing (..)
 import DecktapeIO.Msg exposing (..)
 import DecktapeIO.Effects exposing (noFx)
 import DecktapeIO.Model exposing (..)
-import Http
-import Json.Encode
 import List exposing (..)
 import Platform.Cmd exposing (Cmd)
 import Result
-import Task
 
 
-submitUrl : URL -> Platform.Cmd.Cmd Msg
-submitUrl presentationUrl =
+handleConvertResponse : Model -> URL -> Result String StatusLocator -> ( Model, Cmd Msg )
+handleConvertResponse model source_url result =
     let
-        url =
-            Http.url "/convert" []
-
-        bodyObj =
-            Json.Encode.object [ ( "url", Json.Encode.string presentationUrl ) ]
-
-        body =
-            (Http.string (Json.Encode.encode 2 bodyObj))
-
-        task =
-            Http.post
-                pendingConversionDecoder
-                url
-                body
-    in
-        Task.perform
-            (\err -> HandleConversionResponse presentationUrl (Result.Err (errorToString err)))
-            (\response -> HandleConversionResponse presentationUrl (Result.Ok (PendingConversion response.file_id response.status_url)))
-            task
-
-
-handleConversionResponse : Model -> URL -> Result String PendingConversion -> Model
-handleConversionResponse model source_url result =
-    let
-        conversion_status =
+        details =
             case result of
-                Result.Ok pending ->
-                    InProgress pending
-
                 Result.Err msg ->
-                    DecktapeIO.Model.Err msg
+                    Error msg
 
-        conversion = Conversion source_url conversion_status
+                Result.Ok locator ->
+                    Initiated locator
+
+        conversion =
+            Conversion source_url details
+
+        cmd =
+            case result of
+                Result.Ok locator ->
+                    getStatus locator.file_id locator.status_url
+
+                _ ->
+                    Platform.Cmd.none
     in
-        { model
+        ( { model
             | conversions = conversion :: model.conversions
-        }
+          }
+        , cmd
+        )
+
+
+statusDetails : Result String ConversionDetails -> ConversionDetails
+statusDetails result =
+    case result of
+        Result.Err msg ->
+            Error msg
+
+        Result.Ok details ->
+            details
+
+
+updateDetails : ConversionDetails -> FileID -> Conversion -> Conversion
+updateDetails details file_id conv =
+    let
+        new_details =
+            case conv.details of
+                Initiated locator ->
+                    if locator.file_id == file_id then
+                        details
+                    else
+                        conv.details
+
+                InProgress ipd ->
+                    if ipd.locator.file_id == file_id then
+                        details
+                    else
+                        conv.details
+
+                Complete cd ->
+                    if cd.locator.file_id == file_id then
+                        details
+                    else
+                        conv.details
+
+                _ ->
+                    conv.details
+    in
+        { conv | details = new_details }
+
+
+handleStatusResponse : Model -> FileID -> Result String ConversionDetails -> ( Model, Cmd Msg )
+handleStatusResponse model file_id result =
+    let
+        details =
+            statusDetails result
+
+        updater =
+            updateDetails details file_id
+
+        conversions =
+            List.map updater model.conversions
+
+        cmd =
+            case details of
+                -- Initiated locator ->
+                --     getStatus file_id locator.status_url
+
+                -- InProgress ipd ->
+                --     getStatus file_id ipd.locator.status_url
+
+                _ ->
+                    Platform.Cmd.none
+    in
+        ( { model
+            | conversions = conversions
+          }
+        , cmd
+        )
 
 
 
@@ -84,10 +137,18 @@ update action model =
             , submitUrl model.current_url
             )
 
-        HandleConversionResponse source_url result ->
-            handleConversionResponse model source_url result |> noFx
+        HandleConvertResponse source_url locator ->
+            handleConvertResponse model source_url locator
+
+        HandleStatusResponse file_id details ->
+            handleStatusResponse model file_id details
 
 
+
+-- TODO: If conversion was successful, poll for results
+-- HandleStatusResponse file_id result ->
+--     model |> noFx
+--  TODO: finish this
 -- HandleCompletion source_url result ->
 --     let
 --         status =

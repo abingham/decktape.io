@@ -12,23 +12,23 @@ import Bootstrap.Html exposing (..)
 -- Display of a single conversion request status.
 
 
-statusToRow : DecktapeIO.Model.ConversionStatus -> Html Msg
-statusToRow status =
+conversionDetailsToRow : DecktapeIO.Model.ConversionDetails -> Html Msg
+conversionDetailsToRow status =
     case status of
-        DecktapeIO.Model.Initiated ->
+        DecktapeIO.Model.Initiated _ ->
             text "Initiated"
 
-        DecktapeIO.Model.InProgress file_id ->
+        DecktapeIO.Model.InProgress _ ->
             text "In progress"
 
-        DecktapeIO.Model.Ok file_id download_url->
+        DecktapeIO.Model.Complete data ->
             let
                 filename =
-                    file_id ++ ".pdf"
+                    data.locator.file_id ++ ".pdf"
             in
-                a [ href download_url, downloadAs filename ] [ text "Download" ]
+                a [ href data.download_url, downloadAs filename ] [ text "Download" ]
 
-        DecktapeIO.Model.Err msg ->
+        DecktapeIO.Model.Error msg ->
             text msg
 
 
@@ -40,10 +40,11 @@ submittedUrlsView : DecktapeIO.Model.Model -> Html Msg
 submittedUrlsView model =
     let
         make_row =
-            (\r ->
+            (\conversion ->
                 tr_
-                    [ td_ [ a [ href r.source_url ] [ text r.source_url ] ]
-                    , td_ [ statusToRow r.status ]
+                    [ td_ [ a [ href conversion.source_url ]
+                                [ text conversion.source_url ] ]
+                    , td_ [ conversionDetailsToRow conversion.details ]
                     ]
             )
 
