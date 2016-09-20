@@ -10,8 +10,9 @@ import Json.Decode exposing ((:=), andThen)
 import Json.Encode
 import Http
 import Platform.Cmd exposing (Cmd)
+import Process exposing (sleep)
 import Task
-
+import Time
 
 -- Process the result of submitting a URL for conversion.
 --
@@ -63,12 +64,12 @@ convertDecoder =
 
 statusDecoder : URL -> Json.Decode.Decoder DecktapeIO.Model.ConversionDetails
 statusDecoder status_url =
-    ("status" := Json.Decode.int) `andThen` (conversionDetailsDecoder status_url)
+    ("status" := Json.Decode.string) `andThen` (conversionDetailsDecoder status_url)
 
-conversionDetailsDecoder: URL -> Int -> Json.Decode.Decoder DecktapeIO.Model.ConversionDetails
+conversionDetailsDecoder: URL -> String -> Json.Decode.Decoder DecktapeIO.Model.ConversionDetails
 conversionDetailsDecoder status_url status =
     case status of
-        1 ->
+        "in-progress" ->
             Json.Decode.object3
                 (\ts msg fid ->
                      let
@@ -80,7 +81,7 @@ conversionDetailsDecoder status_url status =
                 ("status_msg" := Json.Decode.string)
                 ("file_id" := Json.Decode.string)
 
-        2 ->
+        "complete" ->
             Json.Decode.object3
                 (\ts dl fid ->
                     let
@@ -92,7 +93,7 @@ conversionDetailsDecoder status_url status =
                 ("download_url" := Json.Decode.string)
                 ("file_id" := Json.Decode.string)
 
-        3 ->
+        "error" ->
             Json.Decode.object1
                 Error
                 ("status_msg" := Json.Decode.string)
@@ -132,22 +133,24 @@ submitUrl presentationUrl =
             task
 
 
-getStatus : FileID -> URL -> Platform.Cmd.Cmd Msg
-getStatus file_id status_url =
+getStatus : Time.Time -> FileID -> URL -> Platform.Cmd.Cmd Msg
+getStatus after file_id status_url =
     let
         url =
             Http.url status_url []
 
-        task =
+        request =
             Http.get
                 (statusDecoder status_url)
                 url
+
+        task =
+            Process.sleep after `Task.andThen` (\_ -> request)
     in
         Task.perform
             (errorToString >> Result.Err >> HandleStatusResponse file_id)
             (Result.Ok >> HandleStatusResponse file_id)
             task
-
 
 
 -- poll : FileID -> URL -> Platform.Cmd.Cmd Msg

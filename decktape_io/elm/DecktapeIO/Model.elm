@@ -15,8 +15,9 @@ type alias Timestamp =
 
 
 -- The result of a successful call to /status
-
 -- TODO: Experiment with extensible records here. And see how they improve (if at all) the update functions.)
+
+
 type alias StatusLocator =
     { file_id : FileID
     , status_url : URL
@@ -24,7 +25,7 @@ type alias StatusLocator =
 
 
 type alias InProgressDetails =
-    { timestamp : Timestamp, status_msg : String, locator: StatusLocator }
+    { timestamp : Timestamp, status_msg : String, locator : StatusLocator }
 
 
 type alias CompleteDetails =

@@ -7,7 +7,7 @@ import DecktapeIO.Model exposing (..)
 import List exposing (..)
 import Platform.Cmd exposing (Cmd)
 import Result
-
+import Time
 
 handleConvertResponse : Model -> URL -> Result String StatusLocator -> ( Model, Cmd Msg )
 handleConvertResponse model source_url result =
@@ -26,7 +26,7 @@ handleConvertResponse model source_url result =
         cmd =
             case result of
                 Result.Ok locator ->
-                    getStatus locator.file_id locator.status_url
+                    getStatus (Time.second * 10) locator.file_id locator.status_url
 
                 _ ->
                     Platform.Cmd.none
@@ -89,13 +89,15 @@ handleStatusResponse model file_id result =
         conversions =
             List.map updater model.conversions
 
+        status_delay = Time.second * 10
+
         cmd =
             case details of
-                -- Initiated locator ->
-                --     getStatus file_id locator.status_url
+                Initiated locator ->
+                    getStatus status_delay file_id locator.status_url
 
-                -- InProgress ipd ->
-                --     getStatus file_id ipd.locator.status_url
+                InProgress ipd ->
+                    getStatus status_delay file_id ipd.locator.status_url
 
                 _ ->
                     Platform.Cmd.none

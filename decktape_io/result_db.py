@@ -4,9 +4,9 @@ import datetime
 import gridfs
 
 
-IN_PROGRESS = 1
-COMPLETE = 2
-ERROR = 3
+IN_PROGRESS = 'in-progress'
+COMPLETE = 'complete'
+ERROR = 'error'
 
 Metadata = namedtuple('Metadata',
                       ['file_id',
