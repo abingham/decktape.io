@@ -83,9 +83,15 @@ class ResultDB:
         # Directly update the file metadata. This *seems* to be officially
         # supported:
         # https://docs.mongodb.com/manual/core/gridfs/#the-files-collection
-        self._files.fs.files.find_one_and_update(
-            {'_id': ref.storage_id},
-            {'$set': {'status': ERROR, 'error_msg': error_msg}})
+        #
+        # Err...now we find this! Clearly they don't want us doing this! What to do next...
+        md = self._files._GridFS__files.find_one({'_id': ref['storage_id']})['metadata']
+        md['status'] = ERROR
+        md['status_msg'] = error_msg
+
+        self._files._GridFS__files.find_one_and_update(
+            {'_id': ref['storage_id']},
+            {'$set': {'metadata': md}})
 
     def get(self, file_id):
         ref = self._refs.find_one({'file_id': file_id})

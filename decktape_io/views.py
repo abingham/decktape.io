@@ -38,12 +38,12 @@ def convert(request):
 
     request.result_db.create(file_id, url)
 
-    #convert_url(
-    #    file_id, url,
-    #    request.registry.settings['mongodb_host'],
-    #    int(request.registry.settings['mongodb_port']),
-    #    request.registry.settings['decktape_phantomjs_path'],
-    #    request.registry.settings['decktape_js_path'])
+    convert_url(
+       file_id, url,
+       request.registry.settings['mongodb_host'],
+       int(request.registry.settings['mongodb_port']),
+       request.registry.settings['decktape_phantomjs_path'],
+       request.registry.settings['decktape_js_path'])
 
     result = {
         'source_url': url,

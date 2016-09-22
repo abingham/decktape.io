@@ -26,7 +26,7 @@ handleConvertResponse model source_url result =
         cmd =
             case result of
                 Result.Ok locator ->
-                    getStatus (Time.second * 10) locator.file_id locator.status_url
+                    getStatus (Time.second * 2) locator.file_id locator.status_url
 
                 _ ->
                     Platform.Cmd.none

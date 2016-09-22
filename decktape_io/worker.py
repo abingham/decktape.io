@@ -45,8 +45,7 @@ def worker_task(file_id,
 
     client = pymongo.MongoClient(db_host, db_port)
     db = client.decktape_io
-    gfs = gridfs.GridFS(db)
-    result_db = ResultDB(gfs)
+    result_db = ResultDB(db)
 
     # TODO: On failure, we need to write something to the DB so clients can
     # know that no output is going to be generated.
@@ -71,7 +70,7 @@ def worker_task(file_id,
                     pdf_file.read())
     except Exception as e:
         msg = 'Error performing conversion: {}'.format(e)
-        result_db.set_erro(file_id, msg)
+        result_db.set_error(file_id, msg)
 
 
 def convert_url(*args):
