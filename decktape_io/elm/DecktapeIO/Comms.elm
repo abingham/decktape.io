@@ -62,36 +62,34 @@ convertDecoder =
 
 
 
-statusDecoder : URL -> Json.Decode.Decoder DecktapeIO.Model.ConversionDetails
-statusDecoder status_url =
-    ("status" := Json.Decode.string) `andThen` (conversionDetailsDecoder status_url)
+statusDecoder : FileID -> URL -> Json.Decode.Decoder DecktapeIO.Model.ConversionDetails
+statusDecoder file_id status_url =
+    ("status" := Json.Decode.string) `andThen` (conversionDetailsDecoder file_id status_url)
 
-conversionDetailsDecoder: URL -> String -> Json.Decode.Decoder DecktapeIO.Model.ConversionDetails
-conversionDetailsDecoder status_url status =
+conversionDetailsDecoder: FileID -> URL -> String -> Json.Decode.Decoder DecktapeIO.Model.ConversionDetails
+conversionDetailsDecoder file_id status_url status =
     case status of
         "in-progress" ->
-            Json.Decode.object3
-                (\ts msg fid ->
+            Json.Decode.object2
+                (\ts msg ->
                      let
-                         locator = StatusLocator fid status_url
+                         locator = StatusLocator file_id status_url
                          details = InProgressDetails ts msg locator
                      in
                          InProgress details)
                 ("timestamp" := Json.Decode.string)
                 ("status_msg" := Json.Decode.string)
-                ("file_id" := Json.Decode.string)
 
         "complete" ->
-            Json.Decode.object3
-                (\ts dl fid ->
+            Json.Decode.object2
+                (\ts dl ->
                     let
-                        locator = StatusLocator fid status_url
+                        locator = StatusLocator file_id status_url
                         details = CompleteDetails locator ts dl
                     in
                         Complete details)
                 ("timestamp" := Json.Decode.string)
                 ("download_url" := Json.Decode.string)
-                ("file_id" := Json.Decode.string)
 
         "error" ->
             Json.Decode.object1
@@ -141,7 +139,7 @@ getStatus after file_id status_url =
 
         request =
             Http.get
-                (statusDecoder status_url)
+                (statusDecoder file_id status_url)
                 url
 
         task =
