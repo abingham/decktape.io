@@ -4,7 +4,6 @@ import tempfile
 
 import celery
 from celery.utils.log import get_logger
-import gridfs
 import pymongo
 import pyramid.httpexceptions
 
