@@ -53,12 +53,12 @@ def test_error_is_recorded(db):
 
 def test_set_error_with_bad_file_id_throws(db):
     with pytest.raises(KeyError):
-        db.set_error(uuid.uuid1(), "error")
+        db.set_error(str(uuid.uuid1()), "error")
 
 
 def test_get_with_bad_file_id_throws(db):
     with pytest.raises(KeyError):
-        db.get(uuid.uuid1())
+        db.get(str(uuid.uuid1()))
 
 
 def test_get_by_url_returns_right_data(single_use_db):
@@ -96,7 +96,7 @@ class TestUpdate:
 
     def test_update_with_bad_file_id_throws(self, db):
         with pytest.raises(KeyError):
-            db.update(uuid.uuid1(), b'asdf')
+            db.update(str(uuid.uuid1()), b'asdf')
 
     def test_update_with_bad_data_does_not_corrupt(self, db):
         file_id = db.create('http://example.com')

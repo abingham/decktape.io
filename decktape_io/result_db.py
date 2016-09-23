@@ -32,7 +32,7 @@ class ResultDB:
 
         Returns a new file-id.
         """
-        file_id = uuid.uuid1()
+        file_id = str(uuid.uuid1())
 
         metadata = Metadata(
             url=url,

@@ -3,7 +3,6 @@ from pyramid.response import Response
 from pyramid.view import view_config
 
 import json
-import uuid
 
 from .worker import convert_url
 
@@ -34,16 +33,15 @@ def convert(request):
 
     """
     url = request.json_body['url']
-    file_id = str(uuid.uuid1())
 
-    request.result_db.create(file_id, url)
+    file_id = request.result_db.create(url)
 
     convert_url(
-       file_id, url,
-       request.registry.settings['mongodb_host'],
-       int(request.registry.settings['mongodb_port']),
-       request.registry.settings['decktape_phantomjs_path'],
-       request.registry.settings['decktape_js_path'])
+        file_id, url,
+        request.registry.settings['mongodb_host'],
+        int(request.registry.settings['mongodb_port']),
+        request.registry.settings['decktape_phantomjs_path'],
+        request.registry.settings['decktape_js_path'])
 
     result = {
         'source_url': url,
@@ -60,10 +58,8 @@ def convert(request):
              request_method='GET',
              renderer='json')
 def status(request):
-    entry = request.result_db.get(
+    md, _ = request.result_db.get(
         request.matchdict['file_id'])
-
-    md = dict(entry.metadata)
 
     # TODO: Better to use a proper json decoder for timestamps.
     md['timestamp'] = md['timestamp'].isoformat()
@@ -79,9 +75,9 @@ def status(request):
 @view_config(route_name='result',
              request_method='GET')
 def result(request):
-    entry = request.result_db.get(
+    md, f = request.result_db.get(
         request.matchdict['file_id'])
-    resp = Response(body=entry.read(),
+    resp = Response(body=f.read(),
                     content_type='application/pdf')
     return resp
 
@@ -93,8 +89,8 @@ def candidates(request):
     url = request.params['url']
 
     results = [
-        _make_result(request, r.file_id, r.url, r.timestamp)
-        for r in request.result_db.get_by_url(url)]
+        _make_result(request, md['file_id'], md['url'], md['timestamp'])
+        for md, _ in request.result_db.get_by_url(url)]
 
     return Response(
         body=json.dumps(results),
