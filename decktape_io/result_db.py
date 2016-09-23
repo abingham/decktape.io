@@ -1,5 +1,6 @@
 from collections import namedtuple
 import datetime
+import uuid
 
 import gridfs
 
@@ -9,8 +10,7 @@ COMPLETE = 'complete'
 ERROR = 'error'
 
 Metadata = namedtuple('Metadata',
-                      ['file_id',
-                       'url',
+                      ['url',
                        'timestamp',
                        'status',
                        'status_msg'])
@@ -18,28 +18,34 @@ Metadata = namedtuple('Metadata',
 
 class ResultDB:
     def __init__(self, db):
-        # GridFS of PDF output data and metadata
+        # GridFS of PDF output data
         self._files = gridfs.GridFS(db)
 
         # Mapping of file-id to _id in _files.
         self._refs = db['file_ids']
 
-    def create(self, file_id, url):
+    def create(self, url):
         """Create a new, empty result file.
 
         This result will have the status `IN_PROGRESS`. You should update it
         later with results.
 
+        Returns a new file-id.
         """
+        file_id = uuid.uuid1()
+
         metadata = Metadata(
-            file_id=file_id,
             url=url,
             timestamp=datetime.datetime.now(),
             status=IN_PROGRESS,
             status_msg="in progress")
 
-        storage_id = self._files.put(b'', metadata=metadata._asdict())
-        self._refs.insert_one({'storage_id': storage_id, 'file_id': file_id})
+        self._refs.insert_one(
+            {'storage_id': None,
+             'file_id': file_id,
+             'metadata': metadata._asdict()})
+
+        return file_id
 
     def update(self, file_id, data):
         """Update the contents of a result.
@@ -48,29 +54,20 @@ class ResultDB:
         status to `complete`.
 
         """
-        # Find existing file_id->storage_id mapping
-        ref = self._refs.find_one({'file_id': file_id})
-        if not ref:
-            raise KeyError(
-                'No result with ID={}'.format(file_id))
+        new_storage_id = self._files.put(data)
 
-        old_result = self._files.get(ref['storage_id'])
+        orig = self._refs.find_one_and_update(
+            {'file_id': file_id},
+            {'$set': {'metadata.status': COMPLETE,
+                      'metadata.status_msg': 'complete',
+                      'storage_id': new_storage_id,
+                      'metadata.timestamp': datetime.datetime.now()}})
 
-        # Write new data into file storage
-        entry = Metadata(file_id=file_id,
-                         url=old_result.url,
-                         timestamp=datetime.datetime.now(),
-                         status=COMPLETE,
-                         status_msg='complete')
-        new_storage_id = self._files.put(data, **entry._asdict())
-
-        # Update refs to point to new storage
-        self._refs.find_one_and_update(
-            {'_id': ref._id},
-            {'$set': {'storage_id': new_storage_id}})
-
-        # Remove old storage
-        self._files.delete(old_result._id)
+        if orig is None:
+            self._files.delete(new_storage_id)
+            raise KeyError('no file with id {}'.format(file_id))
+        else:
+            self._files.delete(orig['storage_id'])
 
     def set_error(self, file_id, error_msg):
         """Set a result's status to `error` and record the status message.
@@ -78,27 +75,28 @@ class ResultDB:
         This does not change the contents of the file, if any.
 
         """
-        ref = self._refs.find_one({'file_id': file_id})
+        orig = self._refs.find_one_and_update(
+            {'file_id': file_id},
+            {'$set': {'metadata.status': ERROR, 'metadata.status_msg': error_msg}})
 
-        # Directly update the file metadata. This *seems* to be officially
-        # supported:
-        # https://docs.mongodb.com/manual/core/gridfs/#the-files-collection
-        #
-        # Err...now we find this! Clearly they don't want us doing this! What to do next...
-        md = self._files._GridFS__files.find_one({'_id': ref['storage_id']})['metadata']
-        md['status'] = ERROR
-        md['status_msg'] = error_msg
+        if orig is None:
+            raise KeyError('no file with id{}'.format(file_id))
 
-        self._files._GridFS__files.find_one_and_update(
-            {'_id': ref['storage_id']},
-            {'$set': {'metadata': md}})
+    def _get_impl(self, file_id, ref):
+        if ref is None:
+            raise KeyError('no file with id {}'.format(file_id))
+        storage_id = ref['storage_id']
+        f = self._files.get(storage_id) if storage_id is not None else None
+        return ref['metadata'], f
 
     def get(self, file_id):
         ref = self._refs.find_one({'file_id': file_id})
-        return self._files.get(ref['storage_id'])
+        return self._get_impl(file_id, ref)
 
     def get_by_url(self, url):
-        return self._files.find({'url': url})
+        refs = self._refs.find({'metadata.url': url})
+        return (self._get_impl(ref['file_id'], ref)
+                for ref in refs)
 
     def __iter__(self):
-        return self._files.find()
+        return self._refs.find()
