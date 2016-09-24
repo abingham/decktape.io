@@ -110,20 +110,20 @@ handleStatusResponse model file_id result =
         , cmd
         )
 
+handleCandidatesResponse : Model -> URL -> Result String (List Candidate) -> (Model, Cmd Msg)
+handleCandidatesResponse model source_url result =
+    let
+        model =
+            case result of
+                Result.Err msg ->
+                    model
+
+                Result.Ok cands ->
+                    {model | candidates = cands}
+    in
+        model |> noFx
 
 
--- getCandidates : URL -> Cmd Msg
--- getCandidates source_url =
---     let
---         url =
---             Http.url "/candidates" [ ( "url", source_url ) ]
---         task =
---             Http.get (Json.Decode.list outputDecoder) url
---     in
---         Task.perform
---             (\x -> UpdateCandidates source_url [])
---             (\candidates -> UpdateCandidates source_url candidates)
---             task
 -- Central update function.
 
 
@@ -131,10 +131,9 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update action model =
     case action of
         SetCurrentUrl url ->
-            -- ( { model | current_url = url }
-            -- , getCandidates url
-            -- )
-            { model | current_url = url } |> noFx
+            ( { model | current_url = url }
+            , getCandidates url
+            )
 
         SubmitCurrentUrl ->
             ( { model | current_url = "" }
@@ -146,6 +145,9 @@ update action model =
 
         HandleStatusResponse file_id details ->
             handleStatusResponse model file_id details
+
+        HandleCandidatesResponse source_url result ->
+            handleCandidatesResponse model source_url result
 
 
 

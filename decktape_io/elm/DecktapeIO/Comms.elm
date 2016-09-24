@@ -36,6 +36,15 @@ errorToString err =
             r
 
 
+candidateDecoder : Json.Decode.Decoder DecktapeIO.Model.Candidate
+candidateDecoder =
+    Json.Decode.object4
+        DecktapeIO.Model.Candidate
+        ("source_url" := Json.Decode.string)
+        ("download_url" := Json.Decode.string)
+        ("file_id" := Json.Decode.string)
+        ("timestamp" := Json.Decode.string)
+
 
 -- Decodes the JSON response from a conversion request into an `Output`.
 
@@ -46,20 +55,6 @@ convertDecoder =
         DecktapeIO.Model.StatusLocator
         ("file_id" := Json.Decode.string)
         ("status_url" := Json.Decode.string)
-
--- statusCodeDecoder : Json.Decode.Decoder DecktapeIO.Model.StatusCode
--- statusCodeDecoder =
---     let
---         decode s =
---             case s of
---                 1 -> Result.Ok DecktapeIO.Model.InProgress
---                 2 -> Result.Ok DecktapeIO.Model.Complete
---                 3 -> Result.Ok DecktapeIO.Model.Error
---                 _ -> Result.Err "Can not convert value" -- TODO: include
---                                                         -- untranslatable value.
---     in
---         customDecoder (Json.Decode.int) decode
-
 
 
 statusDecoder : FileID -> URL -> Json.Decode.Decoder DecktapeIO.Model.ConversionDetails
@@ -150,6 +145,16 @@ getStatus after file_id status_url =
             (Result.Ok >> HandleStatusResponse file_id)
             task
 
+getCandidates : URL -> Cmd Msg
+getCandidates source_url =
+    let
+        url =
+            Http.url "/candidates" [("url", source_url)]
 
--- poll : FileID -> URL -> Platform.Cmd.Cmd Msg
--- poll file_id status_url =
+        task =
+            Http.get (Json.Decode.list candidateDecoder) url
+    in
+        Task.perform
+            (errorToString >> Result.Err >> HandleCandidatesResponse source_url)
+            (Result.Ok >> HandleCandidatesResponse source_url)
+            task

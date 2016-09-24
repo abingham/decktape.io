@@ -8,5 +8,4 @@ type Msg
   | SubmitCurrentUrl
   | HandleConvertResponse URL (Result String StatusLocator)
   | HandleStatusResponse FileID (Result String ConversionDetails)
-  -- | HandleCompletion URL (Result String Output)
-  -- | UpdateCandidates URL (List Output)
+  | HandleCandidatesResponse URL (Result String (List Candidate))
