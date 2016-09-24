@@ -18,8 +18,11 @@ info.
 Getting Started
 ---------------
 
-- cd <directory containing this file>
-
-- $VENV/bin/pip install -e .
-
-- $VENV/bin/pserve development.ini
+```
+cd <directory containing this file>
+$VENV/bin/pip install -e .
+pushd decktape_io/elm
+elm-make Main.elm --yes --output=decktape_io.js
+popd
+$VENV/bin/pserve development.ini
+```
