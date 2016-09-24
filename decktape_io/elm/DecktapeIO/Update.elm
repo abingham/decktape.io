@@ -9,6 +9,7 @@ import Platform.Cmd exposing (Cmd)
 import Result
 import Time
 
+
 handleConvertResponse : Model -> URL -> Result String StatusLocator -> ( Model, Cmd Msg )
 handleConvertResponse model source_url result =
     let
@@ -89,7 +90,8 @@ handleStatusResponse model file_id result =
         conversions =
             List.map updater model.conversions
 
-        status_delay = Time.second * 10
+        status_delay =
+            Time.second * 10
 
         cmd =
             case details of
@@ -135,7 +137,7 @@ update action model =
             { model | current_url = url } |> noFx
 
         SubmitCurrentUrl ->
-            ( model
+            ( { model | current_url = "" }
             , submitUrl model.current_url
             )
 
@@ -147,26 +149,5 @@ update action model =
 
 
 
--- TODO: If conversion was successful, poll for results
--- HandleStatusResponse file_id result ->
---     model |> noFx
---  TODO: finish this
--- HandleCompletion source_url result ->
---     let
---         status =
---             case result of
---                 Result.Ok output ->
---                     DecktapeIO.Model.Ok output
---                 Result.Err msg ->
---                     DecktapeIO.Model.Err msg
---         new_conversion =
---             Conversion source_url status
---         replacer =
---             replaceIf (\r -> r.source_url == source_url) new_conversion model.conversions
---     in
---         { model
---             | conversions = replacer
---         }
---             |> noFx
 -- UpdateCandidates url candidates ->
 --     { model | candidates = List.map (Candidate url) candidates } |> noFx
