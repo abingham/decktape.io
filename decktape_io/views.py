@@ -58,14 +58,14 @@ def convert(request):
              request_method='GET',
              renderer='json')
 def status(request):
+    file_id = request.matchdict['file_id']
     md, _ = request.result_db.get(
-        request.matchdict['file_id'])
+        file_id)
 
     # TODO: Better to use a proper json decoder for timestamps.
     md['timestamp'] = md['timestamp'].isoformat()
 
-    # TODO: If the conversion is complete, we should insert a download link as
-    # well. Perhaps we could just stick that in the status_msg.
+    md['download_url'] = request.route_url('result', file_id=file_id)
 
     return Response(
         json.dumps(md),
