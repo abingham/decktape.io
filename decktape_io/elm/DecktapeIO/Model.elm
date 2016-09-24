@@ -74,7 +74,7 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-    { current_url = "w3.org/Talks/Tools/Slidy"
+    { current_url = ""
     , conversions = []
     , candidates = []
     }
