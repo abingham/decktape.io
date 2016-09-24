@@ -82,21 +82,40 @@ class ResultDB:
         if orig is None:
             raise KeyError('no file with id{}'.format(file_id))
 
-    def _get_impl(self, file_id, ref):
-        if ref is None:
-            raise KeyError('no file with id {}'.format(file_id))
+    def _get_impl(self, ref):
+        """Returns a tuple (metadata, stream) for a particular ref.
+        """
         storage_id = ref['storage_id']
         f = self._files.get(storage_id) if storage_id is not None else None
         return ref['metadata'], f
 
     def get(self, file_id):
+        """Get the metadata and readable data stream for `file_id`.
+
+        Returns:
+          A tuple `(metadata, stream)` where `metadata` is a dict of metadata
+          information and `stream` is a readable stream of data. `stream` will
+          be `None` if there is no data.
+        """
         ref = self._refs.find_one({'file_id': file_id})
-        return self._get_impl(file_id, ref)
+
+        if ref is None:
+            raise KeyError('no file with id {}'.format(file_id))
+
+        return self._get_impl(ref)
 
     def get_by_url(self, url):
-        refs = self._refs.find({'metadata.url': url})
-        return (self._get_impl(ref['file_id'], ref)
-                for ref in refs)
+        """Get metadata and stream for all files with a source-url that matches `url`.
+
+        Returns:
+           A tuple `(file-id, metadata, stream)`. `file-id` is the ID of the
+           file, and the other members are just like `get()`.
+
+        """
+        return (
+            (ref['file_id'], *self._get_impl(ref))
+            for ref
+            in self._refs.find({'metadata.url': url}))
 
     def __iter__(self):
         return self._refs.find()

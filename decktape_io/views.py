@@ -11,7 +11,7 @@ def _make_result(request, file_id, source_url, timestamp):
     result_url = request.route_url('result', file_id=file_id)
 
     return {
-        'result_url': result_url,
+        'download_url': result_url,
         'source_url': source_url,
         'file_id': file_id,
         'timestamp': timestamp.isoformat()
@@ -89,8 +89,8 @@ def candidates(request):
     url = request.params['url']
 
     results = [
-        _make_result(request, md['file_id'], md['url'], md['timestamp'])
-        for md, _ in request.result_db.get_by_url(url)]
+        _make_result(request, file_id, md['url'], md['timestamp'])
+        for file_id, md, _ in request.result_db.get_by_url(url)]
 
     return Response(
         body=json.dumps(results),

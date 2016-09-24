@@ -64,13 +64,14 @@ def test_get_with_bad_file_id_throws(db):
 def test_get_by_url_returns_right_data(single_use_db):
     db = single_use_db
     url = 'http://foobar.com'
-    db.create(url)
+    file_id = db.create(url)
     results = list(db.get_by_url(url))
 
     assert len(results) == 1
 
-    for md, _ in db.get_by_url(url):
+    for fid, md, _ in db.get_by_url(url):
         assert md['url'] == url
+        assert fid == file_id
 
 
 class TestUpdate:
