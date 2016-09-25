@@ -7,6 +7,7 @@ import DecktapeIO.Model exposing (..)
 import List exposing (..)
 import Platform.Cmd exposing (batch, Cmd)
 import Result
+import String
 import Time
 
 
@@ -125,6 +126,21 @@ handleCandidatesResponse model source_url result =
         model |> noFx
 
 
+handleSetCurrentUrl : Model -> URL -> ( Model, Cmd Msg )
+handleSetCurrentUrl model url =
+    let
+        new_model =
+            { model | current_url = url }
+    in
+        if String.length url < 5 then
+            { new_model | candidates = [] }
+                |> noFx
+        else
+            ( new_model
+            , getCandidates url
+            )
+
+
 
 -- Central update function.
 
@@ -133,9 +149,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update action model =
     case action of
         SetCurrentUrl url ->
-            ( { model | current_url = url }
-            , getCandidates url
-            )
+            handleSetCurrentUrl model url
 
         SubmitCurrentUrl ->
             ( { model | current_url = "" }
