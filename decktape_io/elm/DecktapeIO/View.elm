@@ -83,11 +83,8 @@ candidatesView model =
                     ]
             )
 
-        sorted =
-            model.candidates |> List.sortBy (\r -> r.timestamp) |> List.reverse
-
         rows =
-            List.map make_row sorted
+            List.map make_row model.candidates
 
         body =
             if (List.isEmpty rows) then

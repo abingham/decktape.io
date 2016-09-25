@@ -4,6 +4,8 @@ from pyramid.view import view_config
 
 import json
 
+from .candidates import get_candidates
+from decktape_io import result_db
 from .worker import convert_url
 
 
@@ -87,11 +89,22 @@ def result(request):
              renderer='json')
 def candidates(request):
     url = request.params['url']
+    candidates = get_candidates(
+            url,
+            [r['metadata']['url']
+             for r
+             in request.result_db])
 
-    results = [
-        _make_result(request, file_id, md['url'], md['timestamp'])
-        for file_id, md, _ in request.result_db.get_by_url(url)]
+    existing_results = [
+        _make_result(request,
+                     file_id,
+                     metadata['url'],
+                     metadata['timestamp'])
+        for c in candidates
+        for file_id, metadata, _ in request.result_db.get_by_url(c)
+        if metadata['status'] == result_db.COMPLETE
+    ]
 
     return Response(
-        body=json.dumps(results),
+        body=json.dumps(existing_results),
         content_type='application/json')
