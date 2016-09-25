@@ -2,10 +2,10 @@ module DecktapeIO.Update exposing (update)
 
 import DecktapeIO.Comms exposing (..)
 import DecktapeIO.Msg exposing (..)
-import DecktapeIO.Effects exposing (noFx)
+import DecktapeIO.Effects exposing (noFx, send)
 import DecktapeIO.Model exposing (..)
 import List exposing (..)
-import Platform.Cmd exposing (Cmd)
+import Platform.Cmd exposing (batch, Cmd)
 import Result
 import Time
 
@@ -110,7 +110,8 @@ handleStatusResponse model file_id result =
         , cmd
         )
 
-handleCandidatesResponse : Model -> URL -> Result String (List Candidate) -> (Model, Cmd Msg)
+
+handleCandidatesResponse : Model -> URL -> Result String (List Candidate) -> ( Model, Cmd Msg )
 handleCandidatesResponse model source_url result =
     let
         model =
@@ -119,9 +120,10 @@ handleCandidatesResponse model source_url result =
                     model
 
                 Result.Ok cands ->
-                    {model | candidates = cands}
+                    { model | candidates = cands }
     in
         model |> noFx
+
 
 
 -- Central update function.
@@ -137,7 +139,10 @@ update action model =
 
         SubmitCurrentUrl ->
             ( { model | current_url = "" }
-            , submitUrl model.current_url
+            , batch
+                [ SetCurrentUrl "" |> send
+                , submitUrl model.current_url
+                ]
             )
 
         HandleConvertResponse source_url locator ->
@@ -148,8 +153,3 @@ update action model =
 
         HandleCandidatesResponse source_url result ->
             handleCandidatesResponse model source_url result
-
-
-
--- UpdateCandidates url candidates ->
---     { model | candidates = List.map (Candidate url) candidates } |> noFx

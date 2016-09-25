@@ -42,8 +42,10 @@ submittedUrlsView model =
         make_row =
             (\conversion ->
                 tr_
-                    [ td_ [ a [ href conversion.source_url ]
-                                [ text conversion.source_url ] ]
+                    [ td_
+                        [ a [ href conversion.source_url ]
+                            [ text conversion.source_url ]
+                        ]
                     , td_ [ conversionDetailsToRow conversion.details ]
                     ]
             )
