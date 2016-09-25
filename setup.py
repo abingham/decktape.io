@@ -14,6 +14,7 @@ requires = [
     'pyramid',
     'pyramid_chameleon',
     'pyramid_debugtoolbar',
+    'python_levenshtein',
     'waitress',
     ]
 
