@@ -5,6 +5,8 @@ matrix:
     - python: 3.5
   fast_finish: true
 
+services: mongodb
+
 install:
   - python setup.py install
   - pip install --upgrade pytest==3.0.2
