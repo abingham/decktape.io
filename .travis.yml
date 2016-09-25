@@ -6,7 +6,6 @@ matrix:
   fast_finish: true
 
 install:
-  - pip install --upgrade -r requirements.txt
   - python setup.py install
 
 script:
