@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/abingham/decktape.io.png?branch=master)](https://travis-ci.org/abingham/decktape.io)
+
 decktape_io README
 ==================
 
