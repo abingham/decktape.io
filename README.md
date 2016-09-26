@@ -4,14 +4,14 @@ decktape_io README
 ==================
 
 This assumes that decktape itself (and phantomjs) is installed in a directory
-called "decktape" which is a sibling to this file. For example:
+called "decktape-1.0.0" which is a sibling to this file. For example:
 
 ```
-git clone --depth 1 https://github.com/astefanutti/decktape.git
-cd decktape
+curl -L https://github.com/astefanutti/decktape/archive/v1.0.0.tar.gz | tar -xz --exclude phantomjs
+cd decktape-1.0.0
 # on OSX
-curl -L http://astefanutti.github.io/decktape/downloads/phantomjs-osx-cocoa-x86-64 -o bin/phantomjs
-chmod +x bin/phantomjs
+curl -L https://github.com/astefanutti/decktape/releases/download/v1.0.0/phantomjs-osx-cocoa-x86-64 -o phantomjs
+chmod +x phantomjs
 ```
 
 See [the decktape project](https://github.com/astefanutti/decktape/) for more
