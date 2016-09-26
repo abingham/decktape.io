@@ -11,8 +11,8 @@ noFx model =
 
 
 send : Msg -> Platform.Cmd.Cmd Msg
-send msg =
-    Task.succeed 0
-        |> Task.perform
-            (\_ -> msg)
-            (\_ -> msg)
+send =
+    Task.succeed
+        >> Task.perform
+            identity
+            identity
