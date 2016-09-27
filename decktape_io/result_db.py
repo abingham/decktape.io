@@ -104,18 +104,25 @@ class ResultDB:
 
         return self._get_impl(ref)
 
-    def get_by_url(self, url):
-        """Get metadata and stream for all files with a source-url that matches `url`.
+    def get_most_recent(self):
+        """Get file-id and metadata for the most recent successful conversions for all
+        URLs.
 
         Returns:
-           A tuple `(file-id, metadata, stream)`. `file-id` is the ID of the
-           file, and the other members are just like `get()`.
-
+          An iterable of (file-id, metadata) tuples.
         """
+        results = self._refs.aggregate([
+            {'$match': {'metadata.status': 'complete'}},
+            {'$sort': {'metadata.timestamp': -1}},
+            {'$group': {'_id': '$metadata.url',
+                        'metadata': {'$first': '$metadata'},
+                        'file_id': {'$first': '$file_id'}}}
+        ])
         return (
-            (ref['file_id'], *self._get_impl(ref))
-            for ref
-            in self._refs.find({'metadata.url': url}))
+            {k: r[k]
+             for k
+             in ('file_id', 'metadata')}
+            for r in results)
 
     def __iter__(self):
         return self._refs.find()

@@ -16,6 +16,7 @@ requires = [
     'pyramid_chameleon',
     'pyramid_debugtoolbar',
     'python_levenshtein',
+    'stringscore',
     'waitress',
     'WebTest >= 1.3.1',  # py3 compat
     'pytest',  # includes virtualenv

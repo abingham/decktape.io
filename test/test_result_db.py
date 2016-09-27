@@ -61,19 +61,6 @@ def test_get_with_bad_file_id_throws(db):
         db.get(str(uuid.uuid1()))
 
 
-def test_get_by_url_returns_right_data(single_use_db):
-    db = single_use_db
-    url = 'http://foobar.com'
-    file_id = db.create(url)
-    results = list(db.get_by_url(url))
-
-    assert len(results) == 1
-
-    for fid, md, _ in db.get_by_url(url):
-        assert md['url'] == url
-        assert fid == file_id
-
-
 class TestUpdate:
     def test_update_updates_metadata(self, db):
         file_id = db.create('http://example.com')
@@ -112,3 +99,5 @@ class TestUpdate:
         assert f is None
         assert md['status'] == result_db.IN_PROGRESS
         assert md['status_msg'] == 'in progress'
+
+# TODO: Test get_most_recent

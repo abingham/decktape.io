@@ -1,21 +1,19 @@
 from functools import partial
-from itertools import groupby, islice
-from Levenshtein import distance
+import stringscore.liquidmetal as lm
 
 
-def _get_candidates(target, existing):
-    groups = {}
-    for dist, group in groupby(existing, partial(distance, target)):
-        groups.setdefault(dist, []).extend(group)
-    for dist in sorted(groups):
-        yield from sorted(groups[dist])
+def get_candidates(target, records, to_string=None):
+    """Sort `records` in descending order of similarity to `target`.
 
+    `records` is some sequence of objects. `target` is a string.
 
-def get_candidates(target, existing, count=10):
-    """Get a list of 'matching' candidates for `target` from `existing`.
+    Before an entry in `records` can be compared to `target`, it must be
+    converted to a string. If `to_string` is provided, then it is used as a
+    1-ary callable to convert each record to a string for comparison. If it is
+    not provided, then the `str` constructor is used.
 
-    This finds the elements of `existing` which match `target` the most closely
-    and returns an iterable of up to `count` of the closest matches, sorted by
-    closeness.
+    Returns an iterable of the sorted records.
     """
-    return islice(_get_candidates(target, existing), count)
+    to_string = to_string or str
+    score = partial(lm.score, abbrev=target)
+    return sorted(records, key=lambda r: score(to_string(r)), reverse=True)
