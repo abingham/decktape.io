@@ -23,21 +23,28 @@ import Material.Textfield as Textfield
 
 
 -- Display of a single conversion request status.
+
+
 conversionDetailsToRow : DecktapeIO.Model.ConversionDetails -> Html Msg
 conversionDetailsToRow status =
     case status of
         DecktapeIO.Model.Initiated _ ->
             text "Initiated"
+
         DecktapeIO.Model.InProgress _ ->
             text "In progress"
+
         DecktapeIO.Model.Complete data ->
             let
                 filename =
                     data.locator.file_id ++ ".pdf"
             in
                 a [ href data.download_url, downloadAs filename ] [ text "Download" ]
+
         DecktapeIO.Model.Error msg ->
             text msg
+
+
 
 -- -- Display for the collection of URLs submitted for conversion.
 -- submittedUrlsView : DecktapeIO.Model.Model -> Html Msg
@@ -80,10 +87,11 @@ submittedView model =
             Table.tr
                 []
                 [ Table.td
-                      []
-                      [ a
+                    []
+                    [ a
                         [ href conversion.source_url ]
-                        [ text conversion.source_url ] ]
+                        [ text conversion.source_url ]
+                    ]
                 , Table.td
                     []
                     [ conversionDetailsToRow conversion.details ]
@@ -103,37 +111,32 @@ submittedView model =
             ]
 
 
+candidatesView : DecktapeIO.Model.Model -> Html Msg
+candidatesView model =
+    let
+        make_row cand =
+            Table.tr []
+                [ Table.td [] [ text cand.source_url ]
+                , Table.td [] [ text cand.timestamp ]
+                , Table.td [] [ a [ href cand.download_url, downloadAs (cand.file_id ++ ".pdf") ] [ text "Download" ] ]
+                ]
 
--- candidatesView : DecktapeIO.Model.Model -> Html Msg
--- candidatesView model =
---     let
---         make_row =
---             (\cand ->
---                 tr_
---                     [ td_ [ text cand.source_url ]
---                     , td_ [ text cand.timestamp ]
---                     , td_ [ a [ href cand.download_url, downloadAs (cand.file_id ++ ".pdf") ] [ text "Download" ] ]
---                     ]
---             )
---         rows =
---             List.map make_row model.candidates
---         body =
---             if (List.isEmpty rows) then
---                 (em [] [ text "No candidates" ])
---             else
---                 tableStriped_
---                     [ thead_
---                         [ th' { class = "text-left" } [ text "URL" ]
---                         , th' { class = "text-left" } [ text "Timestamp" ]
---                         , th' { class = "text-left" } [ text "Link" ]
---                         ]
---                     , tbody_ rows
---                     ]
---     in
---         panelDefault_
---             [ panelHeading_ [ strong [] [ text "Candidates" ] ]
---             , panelBody_ [ body ]
---             ]
+        rows =
+            List.map make_row model.candidates
+    in
+        Table.table []
+            [ Table.thead []
+                [ Table.tr []
+                    [ Table.th [] [ text "URL" ]
+                    , Table.th [] [ text "Timestamp" ]
+                    , Table.th [] [ text "Link" ]
+                    ]
+                ]
+            , Table.tbody [] rows
+            ]
+
+
+
 -- mainForm : DecktapeIO.Model.Model -> Html Msg
 -- mainForm model =
 --     div [ class "row" ]
@@ -188,24 +191,15 @@ viewBody model =
                 [ urlForm model ]
             , Grid.cell [ Grid.size Grid.All 4 ]
                 [ submittedView model ]
+            , Grid.cell [ Grid.size Grid.All 4 ]
+                [ candidatesView model ]
             ]
-          -- , cell [ offset All 2, size All 4 ]
-          --     [ h4 [] [text "Cell 2"]
-          --     , p [] [text "This cell is offset by 2"]
-          --     ]
-          -- , cell [ size All 6 ]
-          --     [ h4 [] [text "Cell 3"]
-          --     ]
-          -- , cell [ size Tablet 6, size Desktop 12, size Phone 2 ]
-          --     [ h4 [] [text "Cell 4"]
-          --     , p [] [text "Size varies with device"]
-          --     ]
         ]
 
 
 view : DecktapeIO.Model.Model -> Html Msg
 view model =
-    Material.Scheme.topWithScheme Color.Teal Color.LightGreen <|
+    Material.Scheme.topWithScheme Color.Blue Color.LightBlue <|
         Layout.render Mdl
             model.mdl
             [ Layout.fixedHeader
