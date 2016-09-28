@@ -205,11 +205,11 @@ view model =
     Material.Scheme.topWithScheme Color.BlueGrey Color.LightBlue <|
         Layout.render Mdl
             model.mdl
-            [ Layout.fixedHeader
+            [ -- Layout.fixedHeader
               -- , Layout.selectedTab model.selectedTab
               -- , Layout.onSelectTab SelectTab
             ]
-            { header = [ h1 [ style [ ( "padding", "2rem" ) ] ] [ text "DeckTape.IO" ] ]
+            { header = []
             , drawer =
                 []
                 -- , tabs = ( [ text "Milk", text "Oranges" ], [ Color.background (Color.color Color.Teal Color.S400) ] )
