@@ -20,7 +20,6 @@ import Material.Layout as Layout
 import Material.List as List
 import Material.Options as Options
 import Material.Scheme
-import Material.Table exposing (table, tbody, td, th, thead, tr)
 import Material.Textfield as Textfield
 import Material.Typography as Typography
 
@@ -62,8 +61,8 @@ quarterWidth =
     [ Grid.size Grid.Desktop 3, Grid.size Grid.Tablet 2, Grid.size Grid.Phone 1 ]
 
 
-conversionDetailsToRow : DecktapeIO.Model.ConversionDetails -> Html Msg
-conversionDetailsToRow status =
+conversionDetailsView : DecktapeIO.Model.ConversionDetails -> Html Msg
+conversionDetailsView status =
     case status of
         DecktapeIO.Model.Initiated _ ->
             text "Initiated"
@@ -82,35 +81,25 @@ conversionDetailsToRow status =
             text msg
 
 
-submittedTableView : DecktapeIO.Model.Model -> Html Msg
-submittedTableView model =
+submittedListView : DecktapeIO.Model.Model -> Html Msg
+submittedListView model =
     let
-        make_row conversion =
-            tr
-                []
-                [ td
+        make_item conversion =
+            List.li
+                [ List.withSubtitle ]
+                [ List.content
                     []
-                    [ a
-                        [ href conversion.source_url ]
-                        [ text conversion.source_url ]
+                    [ text conversion.source_url
+                    , List.subtitle [] [ conversionDetailsView conversion.details ]
                     ]
-                , td
-                    []
-                    [ conversionDetailsToRow conversion.details ]
                 ]
 
-        rows =
-            List.map make_row model.conversions
+        items =
+            List.map make_item model.conversions
     in
-        table []
-            [ thead []
-                [ tr []
-                    [ th [] [ text "Source URL" ]
-                    , th [] [ text "Status" ]
-                    ]
-                ]
-            , tbody [] rows
-            ]
+        List.ul
+            []
+            items
 
 
 submittedView : DecktapeIO.Model.Model -> Html Msg
@@ -118,7 +107,7 @@ submittedView model =
     if (List.isEmpty model.conversions) then
         caption "No submissions"
     else
-        submittedTableView model
+        submittedListView model
 
 
 candidatesListView : DecktapeIO.Model.Model -> Html Msg
@@ -205,9 +194,9 @@ view model =
     Material.Scheme.topWithScheme Color.BlueGrey Color.LightBlue <|
         Layout.render Mdl
             model.mdl
-            [ -- Layout.fixedHeader
-              -- , Layout.selectedTab model.selectedTab
-              -- , Layout.onSelectTab SelectTab
+            [-- Layout.fixedHeader
+             -- , Layout.selectedTab model.selectedTab
+             -- , Layout.onSelectTab SelectTab
             ]
             { header = []
             , drawer =
