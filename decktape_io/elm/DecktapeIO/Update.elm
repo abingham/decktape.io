@@ -5,6 +5,7 @@ import DecktapeIO.Msg exposing (..)
 import DecktapeIO.Effects exposing (noFx, send)
 import DecktapeIO.Model exposing (..)
 import List exposing (..)
+import Material
 import Platform.Cmd exposing (batch, Cmd)
 import Result
 import String
@@ -167,3 +168,5 @@ update action model =
 
         HandleCandidatesResponse source_url result ->
             handleCandidatesResponse model source_url result
+
+        Mdl msg' -> Material.update msg' model

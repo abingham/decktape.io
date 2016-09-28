@@ -1,5 +1,7 @@
 module DecktapeIO.Model exposing (..)
 
+import Material
+
 
 type alias URL =
     String
@@ -65,6 +67,7 @@ type alias Model =
     { current_url : URL
     , conversions : List Conversion
     , candidates : List Candidate
+    , mdl : Material.Model
     }
 
 
@@ -77,4 +80,5 @@ initialModel =
     { current_url = ""
     , conversions = []
     , candidates = []
+    , mdl = Material.model
     }
