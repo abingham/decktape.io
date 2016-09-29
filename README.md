@@ -3,7 +3,10 @@
 decktape_io README
 ==================
 
-This assumes that decktape itself (and phantomjs) is installed in a directory
+Installing decktape
+-------------------
+
+DeckTape.io assumes that decktape itself (and phantomjs) is installed in a directory
 called "decktape-1.0.0" which is a sibling to this file. For example:
 
 ```
@@ -17,14 +20,54 @@ chmod +x phantomjs
 See [the decktape project](https://github.com/astefanutti/decktape/) for more
 info.
 
-Getting Started
----------------
+Installing decktape.io
+----------------------
 
+First make sure you've installed [elm](elm-lang.org). This is needed to compile the elm-based parts of the app.
+
+1. Compile the elm portions of the site
 ```
-cd <directory containing this file>
-$VENV/bin/pip install -e .
 pushd decktape_io/elm
 elm-make Main.elm --yes --output=decktape_io.js
 popd
-$VENV/bin/pserve development.ini
+```
+
+2. Install the Python components. It's probably best to do this in a virtual environment.
+
+```
+python setup.py install
+```
+
+Running decktape.io
+-------------------
+
+decktape.io requires mongodb and rabbitmq be running. Assuming they're up, you
+first need to start at least one worker:
+```
+celery -A decktape_io.worker worker
+```
+
+This will occupy a terminal, so just let it be.
+
+Next you need to start the webserver. This could be using WSGI behind a proxy or whatever - the options are limitless - but the simplest form is like this:
+```
+pserve development.ini
+```
+
+This will start a Pyramid server on port 6543.
+
+At this point you should have a fully functions system!
+
+Running tests
+-------------
+
+If you want to run the tests, you need to install a few more Python
+dependencies:
+```
+pip install --upgrade -r dev_requirements.txt
+```
+
+Then run the tests using pytest:
+```
+pytest test
 ```

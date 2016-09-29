@@ -10,17 +10,12 @@ with open(os.path.join(here, 'CHANGES.txt')) as f:
 
 requires = [
     'celery',
-    'hypothesis',
     'pymongo',
     'pyramid',
     'pyramid_chameleon',
     'pyramid_debugtoolbar',
-    'python_levenshtein',
     'stringscore',
     'waitress',
-    'WebTest >= 1.3.1',  # py3 compat
-    'pytest',  # includes virtualenv
-    'pytest-cov',
     ]
 
 setup(name='decktape_io',
