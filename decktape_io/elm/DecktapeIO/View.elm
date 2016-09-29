@@ -19,6 +19,7 @@ import Material.Grid as Grid
 import Material.Layout as Layout
 import Material.List as List
 import Material.Options as Options
+import Material.Progress as Progress
 import Material.Scheme
 import Material.Textfield as Textfield
 import Material.Typography as Typography
@@ -65,10 +66,10 @@ conversionDetailsView : DecktapeIO.Model.ConversionDetails -> Html Msg
 conversionDetailsView status =
     case status of
         DecktapeIO.Model.Initiated _ ->
-            text "Initiated"
+            Progress.indeterminate
 
         DecktapeIO.Model.InProgress _ ->
-            text "In progress"
+            Progress.indeterminate
 
         DecktapeIO.Model.Complete data ->
             let
