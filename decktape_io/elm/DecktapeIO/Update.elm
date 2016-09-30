@@ -2,7 +2,7 @@ module DecktapeIO.Update exposing (update)
 
 import DecktapeIO.Comms exposing (..)
 import DecktapeIO.Msg as Msg
-import DecktapeIO.Effects exposing (noFx, send)
+import DecktapeIO.Effects exposing (send)
 import DecktapeIO.Model exposing (..)
 import List exposing (..)
 import Material
@@ -33,12 +33,11 @@ handleConversion model source_url result =
 
                 _ ->
                     Platform.Cmd.none
+
+        conversions =
+            conversion :: model.conversions
     in
-        ( { model
-            | conversions = conversion :: model.conversions
-          }
-        , cmd
-        )
+        { model | conversions = conversions } ! [ cmd ]
 
 
 statusDetails : Result String ConversionDetails -> ConversionDetails
@@ -106,11 +105,7 @@ handleStatus model file_id result =
                 _ ->
                     Platform.Cmd.none
     in
-        ( { model
-            | conversions = conversions
-          }
-        , cmd
-        )
+        { model | conversions = conversions } ! [ cmd ]
 
 
 handleCandidates : Model -> URL -> Result String (List Candidate) -> ( Model, Cmd Msg.Msg )
@@ -124,7 +119,7 @@ handleCandidates model source_url result =
                 Result.Ok cands ->
                     { model | candidates = cands }
     in
-        model |> noFx
+        model ! []
 
 
 handleSetCurrentUrl : Model -> URL -> ( Model, Cmd Msg.Msg )
@@ -134,12 +129,9 @@ handleSetCurrentUrl model url =
             { model | current_url = url }
     in
         if String.length url < 5 then
-            { new_model | candidates = [] }
-                |> noFx
+            { new_model | candidates = [] } ! []
         else
-            ( new_model
-            , getCandidates url
-            )
+            new_model ! [ getCandidates url ]
 
 
 
@@ -153,12 +145,10 @@ update action model =
             handleSetCurrentUrl model url
 
         Msg.SubmitCurrentUrl ->
-            ( { model | current_url = "" }
-            , batch
-                [ Msg.SetCurrentUrl "" |> send
-                , submitUrl model.current_url
-                ]
-            )
+            { model | current_url = "" }
+                ! [ Msg.SetCurrentUrl "" |> send
+                  , submitUrl model.current_url
+                  ]
 
         Msg.Conversion source_url locator ->
             handleConversion model source_url locator
@@ -169,4 +159,5 @@ update action model =
         Msg.Candidates source_url result ->
             handleCandidates model source_url result
 
-        Msg.Mdl msg' -> Material.update msg' model
+        Msg.Mdl msg' ->
+            Material.update msg' model
