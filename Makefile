@@ -11,7 +11,7 @@ elm:
 	cd decktape_io/elm && \
 	rm -Rf elm-stuff && \
 	rm -f decktape_io.js && \
-	elm-make Main.elm --yes --output=decktape_io.js
+	elm-make Main.elm --yes --output decktape_io.js
 
 install_python:
 	python setup.py install
