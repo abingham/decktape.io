@@ -1,7 +1,7 @@
 module DecktapeIO.Update exposing (update)
 
 import DecktapeIO.Comms exposing (..)
-import DecktapeIO.Msg exposing (..)
+import DecktapeIO.Msg as Msg
 import DecktapeIO.Effects exposing (noFx, send)
 import DecktapeIO.Model exposing (..)
 import List exposing (..)
@@ -12,8 +12,8 @@ import String
 import Time
 
 
-handleConvertResponse : Model -> URL -> Result String StatusLocator -> ( Model, Cmd Msg )
-handleConvertResponse model source_url result =
+handleConversion : Model -> URL -> Result String StatusLocator -> ( Model, Cmd Msg.Msg )
+handleConversion model source_url result =
     let
         details =
             case result of
@@ -80,8 +80,8 @@ updateDetails details file_id conv =
         { conv | details = new_details }
 
 
-handleStatusResponse : Model -> FileID -> Result String ConversionDetails -> ( Model, Cmd Msg )
-handleStatusResponse model file_id result =
+handleStatus : Model -> FileID -> Result String ConversionDetails -> ( Model, Cmd Msg.Msg )
+handleStatus model file_id result =
     let
         details =
             statusDetails result
@@ -113,8 +113,8 @@ handleStatusResponse model file_id result =
         )
 
 
-handleCandidatesResponse : Model -> URL -> Result String (List Candidate) -> ( Model, Cmd Msg )
-handleCandidatesResponse model source_url result =
+handleCandidates : Model -> URL -> Result String (List Candidate) -> ( Model, Cmd Msg.Msg )
+handleCandidates model source_url result =
     let
         model =
             case result of
@@ -127,7 +127,7 @@ handleCandidatesResponse model source_url result =
         model |> noFx
 
 
-handleSetCurrentUrl : Model -> URL -> ( Model, Cmd Msg )
+handleSetCurrentUrl : Model -> URL -> ( Model, Cmd Msg.Msg )
 handleSetCurrentUrl model url =
     let
         new_model =
@@ -146,27 +146,27 @@ handleSetCurrentUrl model url =
 -- Central update function.
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg.Msg -> Model -> ( Model, Cmd Msg.Msg )
 update action model =
     case action of
-        SetCurrentUrl url ->
+        Msg.SetCurrentUrl url ->
             handleSetCurrentUrl model url
 
-        SubmitCurrentUrl ->
+        Msg.SubmitCurrentUrl ->
             ( { model | current_url = "" }
             , batch
-                [ SetCurrentUrl "" |> send
+                [ Msg.SetCurrentUrl "" |> send
                 , submitUrl model.current_url
                 ]
             )
 
-        HandleConvertResponse source_url locator ->
-            handleConvertResponse model source_url locator
+        Msg.Conversion source_url locator ->
+            handleConversion model source_url locator
 
-        HandleStatusResponse file_id details ->
-            handleStatusResponse model file_id details
+        Msg.Status file_id details ->
+            handleStatus model file_id details
 
-        HandleCandidatesResponse source_url result ->
-            handleCandidatesResponse model source_url result
+        Msg.Candidates source_url result ->
+            handleCandidates model source_url result
 
-        Mdl msg' -> Material.update msg' model
+        Msg.Mdl msg' -> Material.update msg' model

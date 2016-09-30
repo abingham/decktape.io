@@ -4,7 +4,7 @@
 module DecktapeIO.Comms exposing (..)
 
 import DecktapeIO.Model exposing (..)
-import DecktapeIO.Msg exposing (..)
+import DecktapeIO.Msg as Msg
 import Json.Decode
 import Json.Decode exposing ((:=), andThen)
 import Json.Encode
@@ -102,7 +102,7 @@ conversionDetailsDecoder file_id status_url status =
 
 -- {"status_msg": "in progress", "status": 1, "file_id": "1c186f0a-7db5-11e6-8f7c-34363bc75ac6", "url": "w3.org/Talks/Tools/Slidy", "timestamp": "2016-09-18T17:32:29.529000"}
 
-submitUrl : URL -> Platform.Cmd.Cmd Msg
+submitUrl : URL -> Platform.Cmd.Cmd Msg.Msg
 submitUrl presentationUrl =
     let
         url =
@@ -121,12 +121,12 @@ submitUrl presentationUrl =
                 body
     in
         Task.perform
-            (errorToString >> Result.Err >> HandleConvertResponse presentationUrl)
-            (Result.Ok >> HandleConvertResponse presentationUrl)
+            (errorToString >> Result.Err >> Msg.Conversion presentationUrl)
+            (Result.Ok >> Msg.Conversion presentationUrl)
             task
 
 
-getStatus : Time.Time -> FileID -> URL -> Platform.Cmd.Cmd Msg
+getStatus : Time.Time -> FileID -> URL -> Platform.Cmd.Cmd Msg.Msg
 getStatus after file_id status_url =
     let
         url =
@@ -141,11 +141,11 @@ getStatus after file_id status_url =
             Process.sleep after `Task.andThen` (\_ -> request)
     in
         Task.perform
-            (errorToString >> Result.Err >> HandleStatusResponse file_id)
-            (Result.Ok >> HandleStatusResponse file_id)
+            (errorToString >> Result.Err >> Msg.Status file_id)
+            (Result.Ok >> Msg.Status file_id)
             task
 
-getCandidates : URL -> Cmd Msg
+getCandidates : URL -> Cmd Msg.Msg
 getCandidates source_url =
     let
         url =
@@ -155,6 +155,6 @@ getCandidates source_url =
             Http.get (Json.Decode.list candidateDecoder) url
     in
         Task.perform
-            (errorToString >> Result.Err >> HandleCandidatesResponse source_url)
-            (Result.Ok >> HandleCandidatesResponse source_url)
+            (errorToString >> Result.Err >> Msg.Candidates source_url)
+            (Result.Ok >> Msg.Candidates source_url)
             task
