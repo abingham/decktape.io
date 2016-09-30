@@ -14,13 +14,11 @@ import Material.Button as Button
 
 -- import Material.Card as Card
 
-import Material.Color as Color
 import Material.Grid as Grid
 import Material.Layout as Layout
 import Material.List as List
 import Material.Options as Options
 import Material.Progress as Progress
-import Material.Scheme
 import Material.Textfield as Textfield
 import Material.Typography as Typography
 
@@ -192,17 +190,16 @@ viewBody model =
 
 view : DecktapeIO.Model.Model -> Html Msg
 view model =
-    Material.Scheme.topWithScheme Color.BlueGrey Color.LightBlue <|
-        Layout.render Mdl
-            model.mdl
-            [Layout.fixedHeader
-             -- , Layout.selectedTab model.selectedTab
-             -- , Layout.onSelectTab SelectTab
-            ]
-        { header = [ h1 [ style [ ( "padding", "2rem" ) ] ] [ text "DeckTape.IO" ] ]
-            , drawer =
-                []
-                -- , tabs = ( [ text "Milk", text "Oranges" ], [ Color.background (Color.color Color.Teal Color.S400) ] )
-            , tabs = ( [], [] )
-            , main = [ viewBody model ]
-            }
+    Layout.render Mdl
+        model.mdl
+        [-- Layout.fixedHeader
+         -- , Layout.selectedTab model.selectedTab
+         -- , Layout.onSelectTab SelectTab
+        ]
+    { header = []
+    , drawer =
+          []
+    -- , tabs = ( [ text "Milk", text "Oranges" ], [ Color.background (Color.color Color.Teal Color.S400) ] )
+    , tabs = ( [], [] )
+    , main = [ viewBody model ]
+    }
