@@ -14,6 +14,7 @@ import Process exposing (sleep)
 import Task
 import Time
 
+
 -- Process the result of submitting a URL for conversion.
 --
 -- This results in a `HandleCompletion` action which will be handled
@@ -46,6 +47,7 @@ candidateDecoder =
         ("timestamp" := Json.Decode.string)
 
 
+
 -- Decodes the JSON response from a conversion request into an `Output`.
 
 
@@ -61,17 +63,22 @@ statusDecoder : FileID -> URL -> Json.Decode.Decoder DecktapeIO.Model.Conversion
 statusDecoder file_id status_url =
     ("status" := Json.Decode.string) `andThen` (conversionDetailsDecoder file_id status_url)
 
-conversionDetailsDecoder: FileID -> URL -> String -> Json.Decode.Decoder DecktapeIO.Model.ConversionDetails
+
+conversionDetailsDecoder : FileID -> URL -> String -> Json.Decode.Decoder DecktapeIO.Model.ConversionDetails
 conversionDetailsDecoder file_id status_url status =
     case status of
         "in-progress" ->
             Json.Decode.object2
                 (\ts msg ->
-                     let
-                         locator = StatusLocator file_id status_url
-                         details = InProgressDetails ts msg locator
-                     in
-                         InProgress details)
+                    let
+                        locator =
+                            StatusLocator file_id status_url
+
+                        details =
+                            InProgressDetails ts msg locator
+                    in
+                        InProgress details
+                )
                 ("timestamp" := Json.Decode.string)
                 ("status_msg" := Json.Decode.string)
 
@@ -79,10 +86,14 @@ conversionDetailsDecoder file_id status_url status =
             Json.Decode.object2
                 (\ts dl ->
                     let
-                        locator = StatusLocator file_id status_url
-                        details = CompleteDetails locator ts dl
+                        locator =
+                            StatusLocator file_id status_url
+
+                        details =
+                            CompleteDetails locator ts dl
                     in
-                        Complete details)
+                        Complete details
+                )
                 ("timestamp" := Json.Decode.string)
                 ("download_url" := Json.Decode.string)
 
@@ -93,14 +104,18 @@ conversionDetailsDecoder file_id status_url status =
 
         _ ->
             let
-                msg = "Unknown status code: " ++ toString status
-                details = Error msg
+                msg =
+                    "Unknown status code: " ++ toString status
+
+                details =
+                    Error msg
             in
                 Json.Decode.succeed details
 
 
 
 -- {"status_msg": "in progress", "status": 1, "file_id": "1c186f0a-7db5-11e6-8f7c-34363bc75ac6", "url": "w3.org/Talks/Tools/Slidy", "timestamp": "2016-09-18T17:32:29.529000"}
+
 
 submitUrl : URL -> Platform.Cmd.Cmd Msg.Msg
 submitUrl presentationUrl =
@@ -121,8 +136,8 @@ submitUrl presentationUrl =
                 body
     in
         Task.perform
-            (errorToString >> Result.Err >> Msg.Conversion presentationUrl)
-            (Result.Ok >> Msg.Conversion presentationUrl)
+            (errorToString >> Msg.ConversionError presentationUrl)
+            (Msg.ConversionSuccess presentationUrl)
             task
 
 
@@ -141,20 +156,21 @@ getStatus after file_id status_url =
             Process.sleep after `Task.andThen` (\_ -> request)
     in
         Task.perform
-            (errorToString >> Result.Err >> Msg.Status file_id)
-            (Result.Ok >> Msg.Status file_id)
+            (errorToString >> Msg.StatusError file_id)
+            (Msg.StatusSuccess file_id)
             task
+
 
 getCandidates : URL -> Cmd Msg.Msg
 getCandidates source_url =
     let
         url =
-            Http.url "/candidates" [("url", source_url)]
+            Http.url "/candidates" [ ( "url", source_url ) ]
 
         task =
             Http.get (Json.Decode.list candidateDecoder) url
     in
         Task.perform
-            (errorToString >> Result.Err >> Msg.Candidates source_url)
-            (Result.Ok >> Msg.Candidates source_url)
+            (errorToString >> Msg.CandidatesError source_url)
+            (Msg.CandidatesSuccess source_url)
             task

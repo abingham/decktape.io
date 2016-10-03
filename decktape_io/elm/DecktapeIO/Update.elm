@@ -12,32 +12,28 @@ import String
 import Time
 
 
-handleConversion : Model -> URL -> Result String StatusLocator -> ( Model, Cmd Msg.Msg )
-handleConversion model source_url result =
+handleConversion_ : ConversionDetails -> Cmd Msg.Msg -> Model -> URL -> ( Model, Cmd Msg.Msg )
+handleConversion_ details cmd model source_url =
     let
-        details =
-            case result of
-                Result.Err msg ->
-                    Error msg
-
-                Result.Ok locator ->
-                    Initiated locator
-
         conversion =
             Conversion source_url details
-
-        cmd =
-            case result of
-                Result.Ok locator ->
-                    getStatus (Time.second * 2) locator.file_id locator.status_url
-
-                _ ->
-                    Platform.Cmd.none
 
         conversions =
             conversion :: model.conversions
     in
         { model | conversions = conversions } ! [ cmd ]
+
+
+handleConversionSuccess : StatusLocator -> Model -> URL -> ( Model, Cmd Msg.Msg )
+handleConversionSuccess locator =
+    handleConversion_
+        (Initiated locator)
+        (getStatus (Time.second * 2) locator.file_id locator.status_url)
+
+
+handleConversionError : String -> Model -> URL -> ( Model, Cmd Msg.Msg )
+handleConversionError msg =
+    handleConversion_ (Error msg) Platform.Cmd.none
 
 
 statusDetails : Result String ConversionDetails -> ConversionDetails
@@ -79,18 +75,21 @@ updateDetails details file_id conv =
         { conv | details = new_details }
 
 
-handleStatus : Model -> FileID -> Result String ConversionDetails -> ( Model, Cmd Msg.Msg )
-handleStatus model file_id result =
+handleStatus_ : ConversionDetails -> Cmd Msg.Msg -> FileID -> Model -> ( Model, Cmd Msg.Msg )
+handleStatus_ details cmd file_id model =
     let
-        details =
-            statusDetails result
-
         updater =
             updateDetails details file_id
 
         conversions =
             List.map updater model.conversions
+    in
+        { model | conversions = conversions } ! [ cmd ]
 
+
+handleStatusSuccess : ConversionDetails -> FileID -> Model -> ( Model, Cmd Msg.Msg )
+handleStatusSuccess details file_id =
+    let
         status_delay =
             Time.second * 10
 
@@ -105,21 +104,12 @@ handleStatus model file_id result =
                 _ ->
                     Platform.Cmd.none
     in
-        { model | conversions = conversions } ! [ cmd ]
+        handleStatus_ details cmd file_id
 
 
-handleCandidates : Model -> URL -> Result String (List Candidate) -> ( Model, Cmd Msg.Msg )
-handleCandidates model source_url result =
-    let
-        model =
-            case result of
-                Result.Err msg ->
-                    model
-
-                Result.Ok cands ->
-                    { model | candidates = cands }
-    in
-        model ! []
+handleStatusError : String -> FileID -> Model -> ( Model, Cmd Msg.Msg )
+handleStatusError msg =
+    handleStatus_ (Error msg) Platform.Cmd.none
 
 
 handleSetCurrentUrl : Model -> URL -> ( Model, Cmd Msg.Msg )
@@ -150,14 +140,23 @@ update action model =
                   , submitUrl model.current_url
                   ]
 
-        Msg.Conversion source_url locator ->
-            handleConversion model source_url locator
+        Msg.ConversionSuccess source_url locator ->
+            handleConversionSuccess locator model source_url
 
-        Msg.Status file_id details ->
-            handleStatus model file_id details
+        Msg.ConversionError source_url msg ->
+            handleConversionError msg model source_url
 
-        Msg.Candidates source_url result ->
-            handleCandidates model source_url result
+        Msg.StatusSuccess file_id details ->
+            handleStatusSuccess details file_id model
+
+        Msg.StatusError file_id msg ->
+            handleStatusError msg file_id model
+
+        Msg.CandidatesSuccess source_url candidates ->
+            { model | candidates = candidates } ! []
+
+        Msg.CandidatesError source_url msg ->
+            model ! []
 
         Msg.Mdl msg' ->
             Material.update msg' model

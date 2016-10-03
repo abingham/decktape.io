@@ -2,13 +2,15 @@ module DecktapeIO.Msg exposing (..)
 
 import DecktapeIO.Model exposing (..)
 import Material
-import Result exposing (Result)
 
 
 type Msg
     = SetCurrentUrl URL
     | SubmitCurrentUrl
-    | Conversion URL (Result String StatusLocator)
-    | Status FileID (Result String ConversionDetails)
-    | Candidates URL (Result String (List Candidate))
+    | ConversionSuccess URL StatusLocator
+    | ConversionError URL String
+    | StatusSuccess FileID ConversionDetails
+    | StatusError FileID String
+    | CandidatesSuccess URL (List Candidate)
+    | CandidatesError URL String
     | Mdl (Material.Msg Msg)
