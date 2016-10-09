@@ -37,10 +37,10 @@ errorToString err =
             r
 
 
-candidateDecoder : Json.Decode.Decoder DecktapeIO.Model.Candidate
-candidateDecoder =
+suggestionDecoder : Json.Decode.Decoder DecktapeIO.Model.Suggestion
+suggestionDecoder =
     Json.Decode.object4
-        DecktapeIO.Model.Candidate
+        DecktapeIO.Model.Suggestion
         ("source_url" := Json.Decode.string)
         ("download_url" := Json.Decode.string)
         ("file_id" := Json.Decode.string)
@@ -161,16 +161,16 @@ getStatus after file_id status_url =
             task
 
 
-getCandidates : URL -> Cmd Msg.Msg
-getCandidates source_url =
+getSuggestions : URL -> Cmd Msg.Msg
+getSuggestions source_url =
     let
         url =
-            Http.url "/candidates" [ ( "url", source_url ) ]
+            Http.url "/suggestions" [ ( "url", source_url ) ]
 
         task =
-            Http.get (Json.Decode.list candidateDecoder) url
+            Http.get (Json.Decode.list suggestionDecoder) url
     in
         Task.perform
-            (errorToString >> Msg.CandidatesError source_url)
-            (Msg.CandidatesSuccess source_url)
+            (errorToString >> Msg.SuggestionsError source_url)
+            (Msg.SuggestionsSuccess source_url)
             task

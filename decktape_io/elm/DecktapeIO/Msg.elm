@@ -11,6 +11,6 @@ type Msg
     | ConversionError URL String
     | StatusSuccess FileID ConversionDetails
     | StatusError FileID String
-    | CandidatesSuccess URL (List Candidate)
-    | CandidatesError URL String
+    | SuggestionsSuccess URL (List Suggestion)
+    | SuggestionsError URL String
     | Mdl (Material.Msg Msg)

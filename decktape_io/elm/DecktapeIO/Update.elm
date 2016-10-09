@@ -119,9 +119,9 @@ handleSetCurrentUrl model url =
             { model | current_url = url }
     in
         if String.length url < 5 then
-            { new_model | candidates = [] } ! []
+            { new_model | suggestions = [] } ! []
         else
-            new_model ! [ getCandidates url ]
+            new_model ! [ getSuggestions url ]
 
 
 
@@ -152,10 +152,10 @@ update action model =
         Msg.StatusError file_id msg ->
             handleStatusError msg file_id model
 
-        Msg.CandidatesSuccess source_url candidates ->
-            { model | candidates = candidates } ! []
+        Msg.SuggestionsSuccess source_url suggestions ->
+            { model | suggestions = suggestions } ! []
 
-        Msg.CandidatesError source_url msg ->
+        Msg.SuggestionsError source_url msg ->
             model ! []
 
         Msg.Mdl msg' ->

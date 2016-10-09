@@ -109,8 +109,8 @@ submittedView model =
         submittedListView model
 
 
-candidatesListView : DecktapeIO.Model.Model -> Html Msg
-candidatesListView model =
+suggestionsListView : DecktapeIO.Model.Model -> Html Msg
+suggestionsListView model =
     let
         make_item cand =
             List.li
@@ -124,19 +124,19 @@ candidatesListView model =
                 ]
 
         items =
-            List.map make_item model.candidates
+            List.map make_item model.suggestions
     in
         List.ul
             []
             items
 
 
-candidatesView : DecktapeIO.Model.Model -> Html Msg
-candidatesView model =
-    if (List.isEmpty model.candidates) then
-        caption "No candidates available"
+suggestionsView : DecktapeIO.Model.Model -> Html Msg
+suggestionsView model =
+    if (List.isEmpty model.suggestions) then
+        caption "No suggestions available"
     else
-        candidatesListView model
+        suggestionsListView model
 
 
 urlForm : DecktapeIO.Model.Model -> Html Msg
@@ -181,8 +181,8 @@ viewBody model =
                 , submittedView model
                 ]
             , Grid.cell halfWidth
-                [ title "Candidates"
-                , candidatesView model
+                [ title "Suggestions"
+                , suggestionsView model
                 ]
             ]
         ]

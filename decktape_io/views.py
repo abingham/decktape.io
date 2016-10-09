@@ -4,7 +4,7 @@ from pyramid.view import view_config
 
 import json
 
-from .candidates import get_candidates
+from .suggestions import get_suggestions
 from .worker import convert_url
 
 
@@ -83,12 +83,12 @@ def result(request):
     return resp
 
 
-@view_config(route_name='candidates',
+@view_config(route_name='suggestions',
              request_method='GET',
              renderer='json')
-def candidates(request):
+def suggestions(request):
     url = request.params['url']
-    candidates = get_candidates(
+    suggestions = get_suggestions(
         url,
         request.result_db.get_most_recent(),
         lambda r: r['metadata']['url'])
@@ -98,7 +98,7 @@ def candidates(request):
                      r['file_id'],
                      r['metadata']['url'],
                      r['metadata']['timestamp'])
-        for r in candidates
+        for r in suggestions
     ]
 
     return Response(

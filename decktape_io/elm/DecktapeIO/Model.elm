@@ -51,7 +51,7 @@ type alias Conversion =
     }
 
 
-type alias Candidate =
+type alias Suggestion =
     { source_url : URL
     , download_url : URL
     , file_id : FileID
@@ -66,7 +66,7 @@ type alias Candidate =
 type alias Model =
     { current_url : URL
     , conversions : List Conversion
-    , candidates : List Candidate
+    , suggestions : List Suggestion
     , mdl : Material.Model
     }
 
@@ -79,6 +79,6 @@ initialModel : Model
 initialModel =
     { current_url = ""
     , conversions = []
-    , candidates = []
+    , suggestions = []
     , mdl = Material.model
     }
