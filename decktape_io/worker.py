@@ -6,6 +6,7 @@ import celery
 from celery.utils.log import get_logger
 import pymongo
 import pyramid.httpexceptions
+import validators
 
 from .result_db import ResultDB
 
@@ -45,6 +46,12 @@ def worker_task(file_id,
     client = pymongo.MongoClient(db_host, db_port)
     db = client.decktape_io
     result_db = ResultDB(db)
+
+    url_validator = validators.url(url)
+    if not url_validator:
+        msg = 'Invalid URL: {}'.format(url)
+        result_db.set_error(file_id, msg)
+        return
 
     # TODO: On failure, we need to write something to the DB so clients can
     # know that no output is going to be generated.
