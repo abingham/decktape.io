@@ -79,8 +79,10 @@
 
         <script src="decktape_io.js"></script>
         <script>
-         var node = document.getElementById('decktape-io');
-         var app = Elm.DecktapeIO.embed(node);
+         setTimeout(function() {
+             var node = document.getElementById('decktape-io');
+             var app = Elm.DecktapeIO.embed(node);
+         }, 0);
         </script>
     </body>
 </html>
