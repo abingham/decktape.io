@@ -1,4 +1,0 @@
-hypothesis
-WebTest
-pytest
-pytest-cov

@@ -19,6 +19,11 @@ requires = [
     'waitress',
     ]
 
+tests_require = [
+    'hypothesis',
+    'pytest',
+]
+
 setup(name='decktape_io',
       version='0.0',
       description='decktape_io',
@@ -39,6 +44,7 @@ setup(name='decktape_io',
       include_package_data=True,
       zip_safe=False,
       install_requires=requires,
+      tests_require=tests_require,
       entry_points="""\
       [paste.app_factory]
       main = decktape_io:main

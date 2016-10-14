@@ -3,7 +3,6 @@ appnope==0.1.0
 billiard==3.5.0.0
 celery==4.0.0rc3
 Chameleon==2.24
--e git+git@github.com:abingham/decktape.io@ef120bdd885dabf44c3bcd6be729393923f79123#egg=decktape_io
 decorator==4.0.10
 hypothesis==3.5.1
 ipython==5.1.0
