@@ -5,8 +5,8 @@ module DecktapeIO.Comms exposing (..)
 
 import DecktapeIO.Model exposing (..)
 import DecktapeIO.Msg as Msg
-import Json.Decode
-import Json.Decode exposing ((:=), andThen)
+import Json.Decode exposing ((:=), andThen, Decoder, list, string, succeed)
+import Json.Decode.Pipeline exposing (decode, required)
 import Json.Encode
 import Http
 import Platform.Cmd exposing (Cmd)
@@ -37,38 +37,36 @@ errorToString err =
             r
 
 
-suggestionDecoder : Json.Decode.Decoder DecktapeIO.Model.Suggestion
+suggestionDecoder : Decoder DecktapeIO.Model.Suggestion
 suggestionDecoder =
-    Json.Decode.object4
-        DecktapeIO.Model.Suggestion
-        ("source_url" := Json.Decode.string)
-        ("download_url" := Json.Decode.string)
-        ("file_id" := Json.Decode.string)
-        ("timestamp" := Json.Decode.string)
+    decode DecktapeIO.Model.Suggestion
+        |> required "source_url" string
+        |> required "download_url" string
+        |> required "file_id" string
+        |> required "timestamp" string
 
 
 
 -- Decodes the JSON response from a conversion request into an `Output`.
 
 
-convertDecoder : Json.Decode.Decoder DecktapeIO.Model.StatusLocator
+convertDecoder : Decoder DecktapeIO.Model.StatusLocator
 convertDecoder =
-    Json.Decode.object2
-        DecktapeIO.Model.StatusLocator
-        ("file_id" := Json.Decode.string)
-        ("status_url" := Json.Decode.string)
+    decode DecktapeIO.Model.StatusLocator
+        |> required "file_id" string
+        |> required "status_url" string
 
 
-statusDecoder : FileID -> URL -> Json.Decode.Decoder DecktapeIO.Model.ConversionDetails
+statusDecoder : FileID -> URL -> Decoder DecktapeIO.Model.ConversionDetails
 statusDecoder file_id status_url =
-    ("status" := Json.Decode.string) `andThen` (conversionDetailsDecoder file_id status_url)
+    ("status" := string) `andThen` (conversionDetailsDecoder file_id status_url)
 
 
-conversionDetailsDecoder : FileID -> URL -> String -> Json.Decode.Decoder DecktapeIO.Model.ConversionDetails
+conversionDetailsDecoder : FileID -> URL -> String -> Decoder DecktapeIO.Model.ConversionDetails
 conversionDetailsDecoder file_id status_url status =
     case status of
         "in-progress" ->
-            Json.Decode.object2
+            decode
                 (\ts msg ->
                     let
                         locator =
@@ -79,11 +77,11 @@ conversionDetailsDecoder file_id status_url status =
                     in
                         InProgress details
                 )
-                ("timestamp" := Json.Decode.string)
-                ("status_msg" := Json.Decode.string)
+                |> required "timestamp" string
+                |> required "status_msg" string
 
         "complete" ->
-            Json.Decode.object2
+            decode
                 (\ts dl ->
                     let
                         locator =
@@ -94,13 +92,12 @@ conversionDetailsDecoder file_id status_url status =
                     in
                         Complete details
                 )
-                ("timestamp" := Json.Decode.string)
-                ("download_url" := Json.Decode.string)
+                |> required "timestamp" string
+                |> required "download_url" string
 
         "error" ->
-            Json.Decode.object1
-                Error
-                ("status_msg" := Json.Decode.string)
+            decode Error
+                |> required "status_msg" string
 
         _ ->
             let
@@ -110,7 +107,7 @@ conversionDetailsDecoder file_id status_url status =
                 details =
                     Error msg
             in
-                Json.Decode.succeed details
+                succeed details
 
 
 
@@ -168,7 +165,7 @@ getSuggestions source_url =
             Http.url "/suggestions" [ ( "url", source_url ) ]
 
         task =
-            Http.get (Json.Decode.list suggestionDecoder) url
+            Http.get (list suggestionDecoder) url
     in
         Task.perform
             (errorToString >> Msg.SuggestionsError source_url)
