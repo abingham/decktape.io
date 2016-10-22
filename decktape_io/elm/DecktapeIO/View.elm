@@ -2,6 +2,7 @@ module DecktapeIO.View exposing (view)
 
 import DecktapeIO.Model
 import DecktapeIO.Msg exposing (..)
+import DecktapeIO.Types as Types
 import Html exposing (a, div, h1, Html, p, text)
 import Html.Attributes exposing (..)
 
@@ -60,23 +61,23 @@ quarterWidth =
     [ Grid.size Grid.Desktop 3, Grid.size Grid.Tablet 2, Grid.size Grid.Phone 1 ]
 
 
-conversionDetailsView : DecktapeIO.Model.ConversionDetails -> Html Msg
+conversionDetailsView : Types.ConversionDetails -> Html Msg
 conversionDetailsView status =
     case status of
-        DecktapeIO.Model.Initiated _ ->
+        Types.Initiated _ ->
             Progress.indeterminate
 
-        DecktapeIO.Model.InProgress _ ->
+        Types.InProgress _ ->
             Progress.indeterminate
 
-        DecktapeIO.Model.Complete data ->
+        Types.Complete data ->
             let
                 filename =
                     data.locator.file_id ++ ".pdf"
             in
                 a [ href data.download_url, downloadAs filename ] [ text "Download" ]
 
-        DecktapeIO.Model.Error msg ->
+        Types.Error msg ->
             text msg
 
 

@@ -4,66 +4,71 @@ import DecktapeIO.Comms exposing (..)
 import DecktapeIO.Msg as Msg
 import DecktapeIO.Effects exposing (send)
 import DecktapeIO.Model exposing (..)
+import DecktapeIO.Polling as Polling
+import DecktapeIO.TaskRepeater as TaskRepeater
+import DecktapeIO.Types as Types
+import Dict
 import List exposing (..)
 import Material
 import Platform.Cmd exposing (batch, Cmd)
 import Result
 import String
-import Time
 
 
-handleConversion_ : ConversionDetails -> Cmd Msg.Msg -> Model -> URL -> ( Model, Cmd Msg.Msg )
-handleConversion_ details cmd model source_url =
+handleSubmissionSuccess : Types.StatusLocator -> Model -> Types.URL -> ( Model, Cmd Msg.Msg )
+handleSubmissionSuccess locator model source_url =
     let
         conversion =
-            Conversion source_url details
+            Types.Conversion source_url (Types.Initiated locator)
 
-        conversions =
-            conversion :: model.conversions
+        poller =
+            Polling.statusPoller locator.file_id locator.status_url
     in
-        { model | conversions = conversions } ! [ cmd ]
+        ( { model
+            | conversions = conversion :: model.conversions
+            , pollers = Dict.insert locator.file_id poller model.pollers
+          }
+        , TaskRepeater.start poller
+        )
 
 
-handleConversionSuccess : StatusLocator -> Model -> URL -> ( Model, Cmd Msg.Msg )
-handleConversionSuccess locator =
-    handleConversion_
-        (Initiated locator)
-        (getStatus (Time.second * 2) locator.file_id locator.status_url)
+handleSubmissionError : String -> Model -> Types.URL -> ( Model, Cmd Msg.Msg )
+handleSubmissionError msg model source_url =
+    let
+        conversion =
+            Types.Conversion source_url (Types.Error msg)
+    in
+        { model | conversions = conversion :: model.conversions } ! []
 
 
-handleConversionError : String -> Model -> URL -> ( Model, Cmd Msg.Msg )
-handleConversionError msg =
-    handleConversion_ (Error msg) Platform.Cmd.none
-
-
-statusDetails : Result String ConversionDetails -> ConversionDetails
+statusDetails : Result String Types.ConversionDetails -> Types.ConversionDetails
 statusDetails result =
     case result of
         Result.Err msg ->
-            Error msg
+            Types.Error msg
 
         Result.Ok details ->
             details
 
 
-updateDetails : ConversionDetails -> FileID -> Conversion -> Conversion
+updateDetails : Types.ConversionDetails -> Types.FileID -> Types.Conversion -> Types.Conversion
 updateDetails details file_id conv =
     let
         new_details =
             case conv.details of
-                Initiated locator ->
+                Types.Initiated locator ->
                     if locator.file_id == file_id then
                         details
                     else
                         conv.details
 
-                InProgress ipd ->
+                Types.InProgress ipd ->
                     if ipd.locator.file_id == file_id then
                         details
                     else
                         conv.details
 
-                Complete cd ->
+                Types.Complete cd ->
                     if cd.locator.file_id == file_id then
                         details
                     else
@@ -75,44 +80,48 @@ updateDetails details file_id conv =
         { conv | details = new_details }
 
 
-handleStatus_ : ConversionDetails -> Cmd Msg.Msg -> FileID -> Model -> ( Model, Cmd Msg.Msg )
-handleStatus_ details cmd file_id model =
+handleStatus_ : Types.ConversionDetails -> Bool -> Types.FileID -> Model -> ( Model, Cmd Msg.Msg )
+handleStatus_ details removePoller fileId model =
     let
         updater =
-            updateDetails details file_id
+            updateDetails details fileId
 
         conversions =
             List.map updater model.conversions
+
+        pollers =
+            if removePoller then
+                Dict.remove fileId model.pollers
+            else
+                model.pollers
     in
-        { model | conversions = conversions } ! [ cmd ]
+        { model
+            | conversions = conversions
+            , pollers = pollers
+        }
+            ! []
 
 
-handleStatusSuccess : ConversionDetails -> FileID -> Model -> ( Model, Cmd Msg.Msg )
-handleStatusSuccess details file_id =
+handleStatusSuccess : Types.ConversionDetails -> Types.FileID -> Model -> ( Model, Cmd Msg.Msg )
+handleStatusSuccess details =
     let
-        status_delay =
-            Time.second * 10
-
-        cmd =
+        removePoller =
             case details of
-                Initiated locator ->
-                    getStatus status_delay file_id locator.status_url
-
-                InProgress ipd ->
-                    getStatus status_delay file_id ipd.locator.status_url
+                Types.Complete _ ->
+                    True
 
                 _ ->
-                    Platform.Cmd.none
+                    False
     in
-        handleStatus_ details cmd file_id
+        handleStatus_ details removePoller
 
 
-handleStatusError : String -> FileID -> Model -> ( Model, Cmd Msg.Msg )
+handleStatusError : String -> Types.FileID -> Model -> ( Model, Cmd Msg.Msg )
 handleStatusError msg =
-    handleStatus_ (Error msg) Platform.Cmd.none
+    handleStatus_ (Types.Error msg) False
 
 
-handleSetCurrentUrl : Model -> URL -> ( Model, Cmd Msg.Msg )
+handleSetCurrentUrl : Model -> Types.URL -> ( Model, Cmd Msg.Msg )
 handleSetCurrentUrl model url =
     let
         new_model =
@@ -125,8 +134,8 @@ handleSetCurrentUrl model url =
 
 
 
--- Central update function.
-
+{-| Central update function.
+-}
 
 update : Msg.Msg -> Model -> ( Model, Cmd Msg.Msg )
 update action model =
@@ -140,11 +149,11 @@ update action model =
                   , submitUrl model.current_url
                   ]
 
-        Msg.ConversionSuccess source_url locator ->
-            handleConversionSuccess locator model source_url
+        Msg.SubmissionSuccess source_url locator ->
+            handleSubmissionSuccess locator model source_url
 
-        Msg.ConversionError source_url msg ->
-            handleConversionError msg model source_url
+        Msg.SubmissionError source_url msg ->
+            handleSubmissionError msg model source_url
 
         Msg.StatusSuccess file_id details ->
             handleStatusSuccess details file_id model
@@ -160,3 +169,9 @@ update action model =
 
         Msg.Mdl msg' ->
             Material.update msg' model
+
+        Msg.Poll fileID msg ->
+            let
+                (pollers, cmd) = Polling.update model.pollers fileID msg
+            in
+                {model | pollers = pollers} ! [cmd]
