@@ -11,6 +11,7 @@ import List exposing (..)
 import Material
 import Result
 import Return
+import Return.Optics exposing (refractl)
 import String
 import TaskRepeater
 
@@ -167,7 +168,5 @@ update msg model =
                 \(model, cmd) -> Material.update msg' model
 
             Msg.Poll fileID msg ->
-                \(model, cmd) ->
-                    Return.singleton model.pollers
-                        |> Polling.update fileID msg
-                        |> Return.map (\p -> { model | pollers = p })
+                refractl pollers identity <|
+                    Polling.update fileID msg

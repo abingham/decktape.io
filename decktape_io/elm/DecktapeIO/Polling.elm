@@ -21,15 +21,14 @@ type alias Pollers =
     Dict.Dict Types.FileID Poller
 
 
-update : Types.FileID -> TR.Msg Msg.Msg -> Return.Return (TR.Msg Msg.Msg) Pollers -> Return.Return Msg.Msg Pollers
-update fileID msg =
-    \( pollers, cmd ) ->
-        case (Dict.get fileID pollers) of
-            Just poller ->
-                ((TR.update msg poller) |> \( p, c ) -> Dict.insert fileID p pollers ! [ c ])
+update : Types.FileID -> TR.Msg Msg.Msg -> Pollers -> Return.Return Msg.Msg Pollers
+update fileID msg pollers =
+    case (Dict.get fileID pollers) of
+        Just poller ->
+            ((TR.update msg poller) |> \( p, c ) -> Dict.insert fileID p pollers ! [ c ])
 
-            Nothing ->
-                pollers ! []
+        Nothing ->
+            pollers ! []
 
 
 statusPoller : Types.URL -> Types.FileID -> Poller
