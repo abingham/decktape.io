@@ -1,6 +1,6 @@
 module DecktapeIO.Msg exposing (..)
 
-import DecktapeIO.TaskRepeater as TaskRepeater
+import TaskRepeater as TaskRepeater
 import DecktapeIO.Types exposing (..)
 import Material
 

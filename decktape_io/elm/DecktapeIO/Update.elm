@@ -5,17 +5,17 @@ import DecktapeIO.Msg as Msg
 import DecktapeIO.Effects exposing (send)
 import DecktapeIO.Model exposing (..)
 import DecktapeIO.Polling as Polling
-import DecktapeIO.TaskRepeater as TaskRepeater
 import DecktapeIO.Types as Types
 import Dict
 import List exposing (..)
 import Material
-import Platform.Cmd exposing (batch, Cmd)
 import Result
+import Return
 import String
+import TaskRepeater
 
 
-handleSubmissionSuccess : Types.StatusLocator -> Model -> Types.URL -> ( Model, Cmd Msg.Msg )
+handleSubmissionSuccess : Types.StatusLocator -> Model -> Types.URL -> Return.Return Msg.Msg Model
 handleSubmissionSuccess locator model source_url =
     let
         conversion =
@@ -24,21 +24,25 @@ handleSubmissionSuccess locator model source_url =
         poller =
             Polling.statusPoller locator.file_id locator.status_url
     in
-        ( { model
-            | conversions = conversion :: model.conversions
-            , pollers = Dict.insert locator.file_id poller model.pollers
-          }
-        , TaskRepeater.start poller
-        )
+        Return.singleton model
+            |> Return.map
+                (\m ->
+                    { m
+                        | conversions = conversion :: m.conversions
+                        , pollers = Dict.insert locator.file_id poller m.pollers
+                    }
+                )
+            |> Return.command (TaskRepeater.start poller)
 
 
-handleSubmissionError : String -> Model -> Types.URL -> ( Model, Cmd Msg.Msg )
+handleSubmissionError : String -> Model -> Types.URL -> Return.Return Msg.Msg Model
 handleSubmissionError msg model source_url =
     let
         conversion =
             Types.Conversion source_url (Types.Error msg)
     in
-        { model | conversions = conversion :: model.conversions } ! []
+        Return.singleton model
+            |> Return.map (\m -> { m | conversions = conversion :: m.conversions })
 
 
 statusDetails : Result String Types.ConversionDetails -> Types.ConversionDetails
@@ -80,7 +84,7 @@ updateDetails details file_id conv =
         { conv | details = new_details }
 
 
-handleStatus_ : Types.ConversionDetails -> Bool -> Types.FileID -> Model -> ( Model, Cmd Msg.Msg )
+handleStatus_ : Types.ConversionDetails -> Bool -> Types.FileID -> Model -> Return.Return Msg.Msg Model
 handleStatus_ details removePoller fileId model =
     let
         updater =
@@ -95,14 +99,17 @@ handleStatus_ details removePoller fileId model =
             else
                 model.pollers
     in
-        { model
-            | conversions = conversions
-            , pollers = pollers
-        }
-            ! []
+        Return.singleton model
+            |> Return.map
+                (\m ->
+                    { m
+                        | conversions = conversions
+                        , pollers = pollers
+                    }
+                )
 
 
-handleStatusSuccess : Types.ConversionDetails -> Types.FileID -> Model -> ( Model, Cmd Msg.Msg )
+handleStatusSuccess : Types.ConversionDetails -> Types.FileID -> Model -> Return.Return Msg.Msg Model
 handleStatusSuccess details =
     let
         removePoller =
@@ -116,38 +123,34 @@ handleStatusSuccess details =
         handleStatus_ details removePoller
 
 
-handleStatusError : String -> Types.FileID -> Model -> ( Model, Cmd Msg.Msg )
+handleStatusError : String -> Types.FileID -> Model -> Return.Return Msg.Msg Model
 handleStatusError msg =
     handleStatus_ (Types.Error msg) False
 
 
-handleSetCurrentUrl : Model -> Types.URL -> ( Model, Cmd Msg.Msg )
+handleSetCurrentUrl : Model -> Types.URL -> Return.Return Msg.Msg Model
 handleSetCurrentUrl model url =
-    let
-        new_model =
-            { model | current_url = url }
-    in
-        if String.length url < 5 then
-            { new_model | suggestions = [] } ! []
-        else
-            new_model ! [ getSuggestions url ]
-
+    Return.singleton model
+        |> Return.map (\m -> { m | current_url = url })
+        |> if String.length url < 5 then
+            Return.map (\m -> { m | suggestions = [] })
+           else
+            Return.command (getSuggestions url)
 
 
 {-| Central update function.
 -}
-
-update : Msg.Msg -> Model -> ( Model, Cmd Msg.Msg )
-update action model =
-    case action of
+update : Msg.Msg -> Model -> Return.Return Msg.Msg Model
+update msg model =
+    case msg of
         Msg.SetCurrentUrl url ->
             handleSetCurrentUrl model url
 
         Msg.SubmitCurrentUrl ->
-            { model | current_url = "" }
-                ! [ Msg.SetCurrentUrl "" |> send
-                  , submitUrl model.current_url
-                  ]
+            Return.singleton model
+                |> Return.map (\m -> { m | current_url = ""})
+                |> Return.command (send (Msg.SetCurrentUrl ""))
+                |> Return.command (submitUrl model.current_url)
 
         Msg.SubmissionSuccess source_url locator ->
             handleSubmissionSuccess locator model source_url
@@ -162,16 +165,14 @@ update action model =
             handleStatusError msg file_id model
 
         Msg.SuggestionsSuccess source_url suggestions ->
-            { model | suggestions = suggestions } ! []
+            Return.singleton model
 
         Msg.SuggestionsError source_url msg ->
-            model ! []
+            Return.singleton model
 
         Msg.Mdl msg' ->
             Material.update msg' model
 
         Msg.Poll fileID msg ->
-            let
-                (pollers, cmd) = Polling.update model.pollers fileID msg
-            in
-                {model | pollers = pollers} ! [cmd]
+            Polling.update model.pollers fileID msg
+                |> Return.map (\p -> {model | pollers = p})

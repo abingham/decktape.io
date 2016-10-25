@@ -3,15 +3,16 @@ module DecktapeIO.Polling exposing (..)
 import Dict
 import DecktapeIO.Json as Json
 import DecktapeIO.Msg as Msg
-import DecktapeIO.TaskRepeater as TR
 import DecktapeIO.Types as Types
 import Http
 import Platform.Cmd
+import TaskRepeater as TR
+import TaskRepeater.Schedulers exposing (uniform)
 import Time
 
 
 type alias Poller =
-    TR.Model Msg.Msg Http.Error Types.ConversionDetails Time.Time
+    TR.Model Http.Error Types.ConversionDetails Time.Time Msg.Msg
 
 
 type alias Pollers =
@@ -51,9 +52,9 @@ statusPoller statusURL fileID =
 
         decoder = Json.statusDecoder fileID statusURL
     in
-        TR.Model
+        TR.model
             (Http.get decoder statusURL)
-            (TR.uniform (Time.second * 2))
+            (uniform (Time.second * 2))
             (Msg.StatusSuccess fileID)
             (Json.errorToString >> Msg.StatusError fileID)
             (Msg.Poll fileID)
