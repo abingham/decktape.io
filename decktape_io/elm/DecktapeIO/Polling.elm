@@ -5,7 +5,9 @@ import DecktapeIO.Json as Json
 import DecktapeIO.Msg as Msg
 import DecktapeIO.Types as Types
 import Http
+import Maybe
 import Platform.Cmd
+import Return
 import TaskRepeater as TR
 import TaskRepeater.Schedulers exposing (uniform)
 import Time
@@ -19,21 +21,15 @@ type alias Pollers =
     Dict.Dict Types.FileID Poller
 
 
-update : Pollers -> Types.FileID -> TR.Msg Msg.Msg -> ( Pollers, Platform.Cmd.Cmd Msg.Msg )
-update pollers fileID msg =
-    case (Dict.get fileID pollers) of
-        Just p ->
-            let
-                ( poller, cmd ) =
-                    TR.update msg p
+update : Types.FileID -> TR.Msg Msg.Msg -> Return.Return (TR.Msg Msg.Msg) Pollers -> Return.Return Msg.Msg Pollers
+update fileID msg =
+    \( pollers, cmd ) ->
+        case (Dict.get fileID pollers) of
+            Just poller ->
+                ((TR.update msg poller) |> \( p, c ) -> Dict.insert fileID p pollers ! [ c ])
 
-                pollers =
-                    Dict.insert fileID poller pollers
-            in
-                pollers ! [ cmd ]
-
-        Nothing ->
-            pollers ! []
+            Nothing ->
+                pollers ! []
 
 
 statusPoller : Types.URL -> Types.FileID -> Poller
@@ -50,7 +46,8 @@ statusPoller statusURL fileID =
                 _ ->
                     True
 
-        decoder = Json.statusDecoder fileID statusURL
+        decoder =
+            Json.statusDecoder fileID statusURL
     in
         TR.model
             (Http.get decoder statusURL)
