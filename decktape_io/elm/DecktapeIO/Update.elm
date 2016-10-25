@@ -159,7 +159,7 @@ update msg model =
                 handleStatusError msg file_id
 
             Msg.SuggestionsSuccess source_url suggestions ->
-                Return.zero
+                Return.map (\m -> {m | suggestions = suggestions})
 
             Msg.SuggestionsError source_url msg ->
                 Return.zero
