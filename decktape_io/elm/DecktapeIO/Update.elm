@@ -82,8 +82,8 @@ updateDetails details file_id conv =
         { conv | details = new_details }
 
 
-handleStatus_ : Types.ConversionDetails -> Bool -> Types.FileID -> Return.Return Msg.Msg Model -> Return.Return Msg.Msg Model
-handleStatus_ details removePoller fileId =
+handleStatus_ : Bool -> Types.ConversionDetails -> Types.FileID -> Return.Return Msg.Msg Model -> Return.Return Msg.Msg Model
+handleStatus_ removePoller details fileId =
     let
         updater =
             updateDetails details fileId
@@ -114,12 +114,12 @@ handleStatusSuccess details =
                 _ ->
                     False
     in
-        handleStatus_ details removePoller
+        handleStatus_ removePoller details
 
 
 handleStatusError : String -> Types.FileID -> Return.Return Msg.Msg Model -> Return.Return Msg.Msg Model
-handleStatusError msg =
-    handleStatus_ (Types.Error msg) False
+handleStatusError =
+    Types.Error >> handleStatus_ False
 
 
 handleSetCurrentUrl : Types.URL -> Return.Return Msg.Msg Model -> Return.Return Msg.Msg Model
