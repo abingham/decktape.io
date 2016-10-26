@@ -1,4 +1,4 @@
-module DecktapeIO.Model exposing (initialModel, Model, pollers)
+module DecktapeIO.Model exposing (conversions, current_url, initialModel, Model, pollers, suggestions)
 
 {-| The overal application model.
 -}
@@ -17,6 +17,18 @@ type alias Model =
     , mdl : Material.Model
     , pollers : Polling.Pollers
     }
+
+current_url : Lens Model Types.URL
+current_url =
+    Lens .current_url (\u m -> {m | current_url = u})
+
+conversions : Lens Model (List Types.Conversion)
+conversions =
+    Lens .conversions (\c m -> {m | conversions = c})
+
+suggestions : Lens Model (List Types.Suggestion)
+suggestions  =
+    Lens .suggestions (\s m -> {m | suggestions = s})
 
 pollers : Lens Model Polling.Pollers
 pollers =
