@@ -7,7 +7,7 @@ import DecktapeIO.Types as Types
 import Http
 import Maybe
 import Platform.Cmd
-import Return
+import Return exposing (Return)
 import TaskRepeater as TR
 import TaskRepeater.Schedulers exposing (uniform)
 import Time
@@ -21,7 +21,7 @@ type alias Pollers =
     Dict.Dict Types.FileID Poller
 
 
-update : Types.FileID -> TR.Msg Msg.Msg -> Pollers -> Return.Return Msg.Msg Pollers
+update : Types.FileID -> TR.Msg Msg.Msg -> Pollers -> Return Msg.Msg Pollers
 update fileID msg pollers =
     case (Dict.get fileID pollers) of
         Just poller ->
