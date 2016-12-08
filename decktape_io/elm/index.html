@@ -1,117 +1,123 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <link rel="stylesheet" href="/static/material.min.css">
-        <script src="/static/material.min.js"></script>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-        <link rel="stylesheet" href="/static/material.blue_grey-light_blue.min.css" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-<<<<<<< HEAD
-        <div class="container-fluid">
-            <div class="page-header">
-                <h1>DeckTape.io</h1>
-                <a data-toggle="modal" data-target="#explanation-modal" aria-expanded="false" aria-controls="explanation">
-                    <small>Wha</small>
-                </a>
-            </div>
-=======
-        <!-- Uses a header that contracts as the page scrolls down. -->
-        <style>
-         .demo-layout-waterfall .mdl-layout__header-row .mdl-navigation__link:last-of-type  {
-             padding-right: 0;
-         }
-        </style>
->>>>>>> abingham/master
-
-        <div class="demo-layout-waterfall mdl-layout mdl-js-layout">
-            <header class="mdl-layout__header">
-                <!-- Top row, always visible -->
-                <div class="mdl-layout__header-row">
-                    <!-- Title -->
-                    <span class="mdl-layout-title">DeckTape.IO</span>
-                    <div class="mdl-layout-spacer"></div>
-                </div>
-                <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
-                    <a href="#conversion-form" class="mdl-layout__tab is-active">Home</a>
-                    <a href="#what-is-this" class="mdl-layout__tab">What is this?</a>
-                </div>
-            </header>
-
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="mdl/material.min.css">
+    <script src="mdl/material.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Baloo+Bhai|Righteous" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/custom.css">
+    <title>DeckTape.io</title>
+  </head>
+  <body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header mdl-layout__header--transparent">
+      <div class="mdl-layout__header-row">
+        <!-- Title -->
+        <span class="mdl-layout-title">DeckTape<span class="title-span">.</span>io</span>
+      </div>
+    </header>
+    <div class="mdl-layout__drawer">
+      <span class="mdl-layout-title drawer-title-text">About the Program</span>
+      <p>DeckTape.io converts HTML presentations into PDFs.</p>
+      <p>You give it the address of an HTML presentation on the web, and it will generate a PDF version of that presentation. It's that simple.</p>
+      <p>DeckTape.io is powered by <a href="https://github.com/astefanutti/DeckTape">DeckTape</a>, a flexible, high-quality PDF export tool. This means that DeckTape.io can handle presentations in many different formats.</p>
+      <p>You can find <a href="https://github.com/astefanutti/DeckTape/blob/master/README.adoc#examples">example presentations on the DeckTape project page</a>.</p>
+      <p>To use DeckTape.io, just put a URL of a presentation into the box below and click "Convert!". DeckTape.io will work on it for a bit and give you a download link. Enjoy!</p>
+      <p>SUPPORTED FORMATS</p>
+      <ul class='mdl-list'>
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content"><i class="material-icons list-icon">star</i><a href="http://markdalgleish.com/projects/bespoke.js">Bespoke.js</a></span>
+        </li>
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content"><i class="material-icons list-icon">star</i><a href="http://paulrouget.com/dzslides">DZSlides</a></span>
+        </li>
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content"><i class="material-icons list-icon">star</i><a href="http://remarkjs.com/">remark</a></span>
+        </li>
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content"><i class="material-icons list-icon">star</i><a href="http://shwr.me/">Shower</a></span>
+        </li>
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content"><i class="material-icons list-icon">star</i><a href="http://leaverou.github.io/csss">CSSS</a></span>
+        </li>
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content"><i class="material-icons list-icon">star</i><a href="http://flowtime-js.marcolago.com/">Flowtime.js</a></span>
+        </li>
+      </ul>
+      <ul class='mdl-list'>
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content"><i class="material-icons list-icon">star</i><a href="http://lab.hakim.se/reveal-js">reveal.js</a></span>
+        </li>
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content"><i class="material-icons list-icon">star</i><a href="http://www.w3.org/Talks/Tools/Slidy/">Slidy</a></span>
+        </li>
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content"><i class="material-icons list-icon">star</i><a href="http://imakewebthings.com/deck.js">deck.js</a></span>
+        </li>
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content"><i class="material-icons list-icon">star</i><a href="http://impress.github.io/impress.js">impress.js</a></span>
+        </li>
+        <li class="mdl-list__item">
+          <span class="mdl-list__item-primary-content"><i class="material-icons list-icon">star</i><a href="https://github.com/damianavila/RISE">RISE</a></span>
+        </li>
+      </ul>
+    </div>
+    <main class="mdl-layout__content">
+      <div id="decktape-io">
+        <div class="mdl-layout__container">
+          <div class="mdl-layout  is-upgraded mdl-js-layout">
             <main class="mdl-layout__content">
-                <section class="mdl-layout__tab-panel is-active" id="conversion-form">
-                    <div id="decktape-io"></div>
-                </section>
-                <section class="mdl-layout__tab-panel" id="what-is-this">
-                    <div class="mdl-grid">
-                        <div class="mdl-cell mdl-cell--1-col"></div>
-                        <div class="mdl-cell mdl-cell--7-col">
-                            <p class="mdl-typography--headline">
-                                DeckTape.io converts HTML presentations into PDFs.
-                            </p>
-
-                            <p class="mdl-typography--title">
-                                You give it the address of an HTML presentation on the web, and it will generate a PDF version of that presentation. It's that simple.
-                            </p>
-
-                            <p>
-                                DeckTape.io is powered by <a href="https://github.com/astefanutti/DeckTape">DeckTape</a>, a flexible, high-quality PDF export tool. This means that DeckTape.io can handle presentations in many different formats.
-                            </p>
-                            <p>
-                                You can find <a href="https://github.com/astefanutti/DeckTape/blob/master/README.adoc#examples">example presentations on the DeckTape project page</a>.
-                            </p>
-                            <p>
-                                To use DeckTape.io, just put a URL of a presentation into the box below and click "Convert!". DeckTape.io will work on it for a bit and give you a download link. Enjoy!
-                            </p>
+              <div style="padding: 2rem;">
+                <div class="mdl-grid">
+                  <div class="mdl-cell--4-col-phone mdl-cell--8-col-tablet mdl-cell--12-col-desktop mdl-cell">
+                    <div>
+                      <div class="mdl-layout__header-row">
+                        <div class="mdl-textfield--floating-label is-upgraded mdl-js-textfield mdl-textfield">
+                          <input type="text" class="mdl-textfield__input" style="outline: none;">
+                            <label class="mdl-textfield__label">URL</label>
+                            <div></div>
+                          </div>
                         </div>
-                        <div class="mdl-cell mdl-cell--4-col">
-                            <p class="mdl-typography--title">SUPPORTED FORMATS</p>
-                            <div class="mdl-grid">
-                                <div class="mdl-cell mdl-cell--6-col">
-                                    <ul class="mdl-list">
-                                        <li class="mdl-list__item"><a href="http://markdalgleish.com/projects/bespoke.js">Bespoke.js</a></li>
-                                        <li class="mdl-list__item"><a href="http://paulrouget.com/dzslides">DZSlides</a></li>
-                                        <li class="mdl-list__item"><a href="http://remarkjs.com/">remark</a></li>
-                                        <li class="mdl-list__item"><a href="http://shwr.me/">Shower</a></li>
-                                        <li class="mdl-list__item"><a href="http://leaverou.github.io/csss">CSSS</a></li>
-                                        <li class="mdl-list__item"><a href="http://flowtime-js.marcolago.com/">Flowtime.js</a></li>
-                                    </ul>
-                                </div>
-                                <div class="mdl-cell mdl-cell--6-col">
-                                    <ul class="mdl-list">
-                                        <li class="mdl-list__item"><a href="http://lab.hakim.se/reveal-js">reveal.js</a></li>
-                                        <li class="mdl-list__item"><a href="http://www.w3.org/Talks/Tools/Slidy/">Slidy</a></li>
-                                        <li class="mdl-list__item"><a href="http://imakewebthings.com/deck.js">deck.js</a></li>
-                                        <li class="mdl-list__item"><a href="http://impress.github.io/impress.js">impress.js</a></li>
-                                        <li class="mdl-list__item"><a href="https://github.com/damianavila/RISE">RISE</a></li>
-                                    </ul>
-                                </div>
-
-                            </div>
+                        <div class="mdl-layout__header-row">
+                          <button onmouseup="this.blur(); (function(self) { var e = document.createEvent('Event'); e.initEvent('touchcancel', true, true); self.lastChild.dispatchEvent(e); }(this));" onmouseleave="this.blur(); (function(self) { var e = document.createEvent('Event'); e.initEvent('touchcancel', true, true); self.lastChild.dispatchEvent(e); }(this));" ontouchend="this.blur(); (function(self) { var e = document.createEvent('Event'); e.initEvent('touchcancel', true, true); self.lastChild.dispatchEvent(e); }(this));" class="mdl-js-ripple-effect mdl-js-button mdl-button mdl-button--raised">Convert
+                            <span class="mdl-button__ripple-container">
+                              <span class="mdl-ripple is-animating"></span>
+                            </span>
+                          </button>
                         </div>
+                      </div>
                     </div>
-                </section>
-            </main>
-
-            <footer class="mdl-mini-footer">
-                <div class="mdl-mini-footer__left-section">
-                    <div class="mdl-logo">DeckTape.IO</div>
-                    <ul class="mdl-mini-footer__link-list">
-                        <li><a href="https://github.com/abingham/decktape.io/issues">Help</a></li>
-                    </ul>
+                    <div class="mdl-cell--2-col-phone mdl-cell--4-col-tablet mdl-cell--6-col-desktop mdl-cell">
+                      <p class="mdl-typography--title-color-contrast">Submissions</p>
+                      <p class="mdl-typography--caption-force-preferred-font-color-contrast">No submissions</p>
+                    </div>
+                    <div class="mdl-cell--2-col-phone mdl-cell--4-col-tablet mdl-cell--6-col-desktop mdl-cell">
+                      <p class="mdl-typography--title-color-contrast">Suggestions</p>
+                      <p class="mdl-typography--caption-force-preferred-font-color-contrast">No suggestions available</p>
+                    </div>
+                  </div>
                 </div>
-                <div class="mdl-mini-footer__right-section">
-                    &copy; 2016 <a href="http://www.sixty-north.com">Sixty North AS.</a> All rights are reserved.
-                </div>
-            </footer>
+              </main>
+            </div>
+          </div>
         </div>
-
-        <script src="decktape_io.js"></script>
-        <script>
-         setTimeout(function() {
-             var node = document.getElementById('decktape-io');
-             var app = Elm.DecktapeIO.embed(node);
-         }, 50);
-        </script>
-    </body>
+    </main>
+    <footer class="mdl-mini-footer">
+      <div class="mdl-mini-footer__left-section">
+        <div class="mdl-logo"><img class="git-img"src="img/git.svg" alt="github icon" /> <a href="https://github.com/abingham/decktape.io/issues">Help</a> </div>
+      </div>
+      <div class="mdl-mini-footer__right-section">
+        <div class="mdl-logo">&copy; 2016 <a href="http://www.sixty-north.com">Sixty North AS.</a> All rights are reserved.</div>
+      </div>
+    </footer>
+  </div>
+  <script src="decktape_io.js"></script>
+  <script>
+   setTimeout(function() {
+       var node = document.getElementById('decktape-io');
+       var app = Elm.DecktapeIO.embed(node);
+   }, 50);
+  </script>
+  </body>
 </html>

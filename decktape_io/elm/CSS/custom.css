@@ -1,0 +1,58 @@
+/* Title adjustments */
+
+.mdl-layout-title{
+  font-family: 'Righteous', cursive;
+  color: #404142;
+  font-size: 60px;
+}
+
+.title-span{
+  color: #FF8F00;
+}
+
+/* Button adjustments */
+
+.material-icons{
+  font-size: 36px;
+  font-weight: bold;
+  padding-top: 4px;
+}
+
+.mdl-layout__drawer-button{
+  margin: 12px;
+}
+
+.mdl-layout__header .mdl-layout__drawer-button {
+  color: #FF8F00;
+}
+
+/* Drawer adjustments */
+
+.mdl-layout__drawer{
+  width: 400px;
+}
+
+.mdl-layout__drawer{
+  -webkit-transform: translateX(-400px);
+  transform: translateX(-400px);
+}
+
+.drawer-title-text{
+  font-size: 30px;
+  text-decoration: underline;
+}
+
+
+.mdl-mini-footer{
+  padding: 0px 16px;
+}
+
+.git-img{
+  height: 18px;
+}
+
+.list-icon{
+  color: #607D8B;
+  font-size: .9em;
+  padding-right: 5px;
+}
