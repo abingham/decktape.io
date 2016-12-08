@@ -1,73 +1,74 @@
 module DecktapeIO.Update exposing (update)
 
 import DecktapeIO.Comms exposing (..)
-import DecktapeIO.Msg exposing (..)
-import DecktapeIO.Effects exposing (noFx, send)
+import DecktapeIO.Msg as Msg
+import DecktapeIO.Effects exposing (send)
 import DecktapeIO.Model exposing (..)
+import DecktapeIO.Polling as Polling
+import DecktapeIO.TaskRepeater as TaskRepeater
+import DecktapeIO.Types as Types
+import Dict
 import List exposing (..)
+import Material
 import Platform.Cmd exposing (batch, Cmd)
 import Result
 import String
-import Time
 
 
-handleConvertResponse : Model -> URL -> Result String StatusLocator -> ( Model, Cmd Msg )
-handleConvertResponse model source_url result =
+handleSubmissionSuccess : Types.StatusLocator -> Model -> Types.URL -> ( Model, Cmd Msg.Msg )
+handleSubmissionSuccess locator model source_url =
     let
-        details =
-            case result of
-                Result.Err msg ->
-                    Error msg
-
-                Result.Ok locator ->
-                    Initiated locator
-
         conversion =
-            Conversion source_url details
+            Types.Conversion source_url (Types.Initiated locator)
 
-        cmd =
-            case result of
-                Result.Ok locator ->
-                    getStatus (Time.second * 2) locator.file_id locator.status_url
-
-                _ ->
-                    Platform.Cmd.none
+        poller =
+            Polling.statusPoller locator.file_id locator.status_url
     in
         ( { model
             | conversions = conversion :: model.conversions
+            , pollers = Dict.insert locator.file_id poller model.pollers
           }
-        , cmd
+        , TaskRepeater.start poller
         )
 
 
-statusDetails : Result String ConversionDetails -> ConversionDetails
+handleSubmissionError : String -> Model -> Types.URL -> ( Model, Cmd Msg.Msg )
+handleSubmissionError msg model source_url =
+    let
+        conversion =
+            Types.Conversion source_url (Types.Error msg)
+    in
+        { model | conversions = conversion :: model.conversions } ! []
+
+
+statusDetails : Result String Types.ConversionDetails -> Types.ConversionDetails
 statusDetails result =
     case result of
         Result.Err msg ->
-            Error msg
+            Types.Error msg
 
         Result.Ok details ->
             details
 
 
-updateDetails : ConversionDetails -> FileID -> Conversion -> Conversion
+updateDetails : Types.ConversionDetails -> Types.FileID -> Types.Conversion -> Types.Conversion
 updateDetails details file_id conv =
     let
         new_details =
             case conv.details of
-                Initiated locator ->
+                Types.Initiated locator ->
                     if locator.file_id == file_id then
                         details
                     else
                         conv.details
 
-                InProgress ipd ->
+                Types.InProgress ipd ->
                     if ipd.locator.file_id == file_id then
                         details
                     else
                         conv.details
 
-                Complete cd ->
+                Types.Complete cd ->
                     if cd.locator.file_id == file_id then
                         details
                     else
@@ -79,91 +80,98 @@ updateDetails details file_id conv =
         { conv | details = new_details }
 
 
-handleStatusResponse : Model -> FileID -> Result String ConversionDetails -> ( Model, Cmd Msg )
-handleStatusResponse model file_id result =
+handleStatus_ : Types.ConversionDetails -> Bool -> Types.FileID -> Model -> ( Model, Cmd Msg.Msg )
+handleStatus_ details removePoller fileId model =
     let
-        details =
-            statusDetails result
-
         updater =
-            updateDetails details file_id
+            updateDetails details fileId
 
         conversions =
             List.map updater model.conversions
 
-        status_delay =
-            Time.second * 10
+        pollers =
+            if removePoller then
+                Dict.remove fileId model.pollers
+            else
+                model.pollers
+    in
+        { model
+            | conversions = conversions
+            , pollers = pollers
+        }
+            ! []
 
-        cmd =
+
+handleStatusSuccess : Types.ConversionDetails -> Types.FileID -> Model -> ( Model, Cmd Msg.Msg )
+handleStatusSuccess details =
+    let
+        removePoller =
             case details of
-                Initiated locator ->
-                    getStatus status_delay file_id locator.status_url
-
-                InProgress ipd ->
-                    getStatus status_delay file_id ipd.locator.status_url
+                Types.Complete _ ->
+                    True
 
                 _ ->
-                    Platform.Cmd.none
+                    False
     in
-        ( { model
-            | conversions = conversions
-          }
-        , cmd
-        )
+        handleStatus_ details removePoller
 
 
-handleCandidatesResponse : Model -> URL -> Result String (List Candidate) -> ( Model, Cmd Msg )
-handleCandidatesResponse model source_url result =
-    let
-        model =
-            case result of
-                Result.Err msg ->
-                    model
-
-                Result.Ok cands ->
-                    { model | candidates = cands }
-    in
-        model |> noFx
+handleStatusError : String -> Types.FileID -> Model -> ( Model, Cmd Msg.Msg )
+handleStatusError msg =
+    handleStatus_ (Types.Error msg) False
 
 
-handleSetCurrentUrl : Model -> URL -> ( Model, Cmd Msg )
+handleSetCurrentUrl : Model -> Types.URL -> ( Model, Cmd Msg.Msg )
 handleSetCurrentUrl model url =
     let
         new_model =
             { model | current_url = url }
     in
         if String.length url < 5 then
-            { new_model | candidates = [] }
-                |> noFx
+            { new_model | suggestions = [] } ! []
         else
-            ( new_model
-            , getCandidates url
-            )
+            new_model ! [ getSuggestions url ]
 
 
 
--- Central update function.
+{-| Central update function.
+-}
 
-
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg.Msg -> Model -> ( Model, Cmd Msg.Msg )
 update action model =
     case action of
-        SetCurrentUrl url ->
+        Msg.SetCurrentUrl url ->
             handleSetCurrentUrl model url
 
-        SubmitCurrentUrl ->
-            ( { model | current_url = "" }
-            , batch
-                [ SetCurrentUrl "" |> send
-                , submitUrl model.current_url
-                ]
-            )
+        Msg.SubmitCurrentUrl ->
+            { model | current_url = "" }
+                ! [ Msg.SetCurrentUrl "" |> send
+                  , submitUrl model.current_url
+                  ]
 
-        HandleConvertResponse source_url locator ->
-            handleConvertResponse model source_url locator
+        Msg.SubmissionSuccess source_url locator ->
+            handleSubmissionSuccess locator model source_url
 
-        HandleStatusResponse file_id details ->
-            handleStatusResponse model file_id details
+        Msg.SubmissionError source_url msg ->
+            handleSubmissionError msg model source_url
 
-        HandleCandidatesResponse source_url result ->
-            handleCandidatesResponse model source_url result
+        Msg.StatusSuccess file_id details ->
+            handleStatusSuccess details file_id model
+
+        Msg.StatusError file_id msg ->
+            handleStatusError msg file_id model
+
+        Msg.SuggestionsSuccess source_url suggestions ->
+            { model | suggestions = suggestions } ! []
+
+        Msg.SuggestionsError source_url msg ->
+            model ! []
+
+        Msg.Mdl msg' ->
+            Material.update msg' model
+
+        Msg.Poll fileID msg ->
+            let
+                (pollers, cmd) = Polling.update model.pollers fileID msg
+            in
+                {model | pollers = pollers} ! [cmd]

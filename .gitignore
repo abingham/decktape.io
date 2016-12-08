@@ -6,6 +6,8 @@ decktape_io/elm/decktape_io.js
 __pycache__
 *pyc
 .csearchindex
+.hypothesis
+.cache
 
 # We might have a decktape installation hanging around. Ignore it.
-decktape
+decktape-1.0.0

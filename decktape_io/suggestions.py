@@ -2,7 +2,7 @@ from functools import partial
 import stringscore.liquidmetal as lm
 
 
-def get_candidates(target, records, to_string=None):
+def get_suggestions(target, records, to_string=None):
     """Sort `records` in descending order of similarity to `target`.
 
     `records` is some sequence of objects. `target` is a string.

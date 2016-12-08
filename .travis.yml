@@ -8,8 +8,8 @@ matrix:
 services: mongodb
 
 install:
+  - pip install --upgrade -r requirements.txt
   - python setup.py install
-  - pip install --upgrade pytest==3.0.2
 
 script:
-  - py.test test
+  - pytest test

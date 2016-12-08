@@ -1,70 +1,20 @@
-module DecktapeIO.Model exposing (..)
+module DecktapeIO.Model exposing (initialModel, Model)
 
+{-| The overal application model.
+-}
 
-type alias URL =
-    String
-
-
-type alias FileID =
-    String
-
-
-type alias Timestamp =
-    String
-
-
-
--- The result of a successful call to /status
--- TODO: Experiment with extensible records here. And see how they improve (if at all) the update functions.)
-
-
-type alias StatusLocator =
-    { file_id : FileID
-    , status_url : URL
-    }
-
-
-type alias InProgressDetails =
-    { timestamp : Timestamp, status_msg : String, locator : StatusLocator }
-
-
-type alias CompleteDetails =
-    { locator : StatusLocator, timestamp : Timestamp, download_url : URL }
-
-
-
--- Full details of a single conversion
-
-
-type ConversionDetails
-    = Initiated StatusLocator
-    | InProgress InProgressDetails
-    | Complete CompleteDetails
-    | Error String
-
-
-type alias Conversion =
-    { source_url : URL
-    , details : ConversionDetails
-    }
-
-
-type alias Candidate =
-    { source_url : URL
-    , download_url : URL
-    , file_id : FileID
-    , timestamp : Timestamp
-    }
-
-
-
--- The top-level application model.
+import Dict
+import DecktapeIO.Polling as Polling
+import DecktapeIO.Types as Types
+import Material
 
 
 type alias Model =
-    { current_url : URL
-    , conversions : List Conversion
-    , candidates : List Candidate
+    { current_url : Types.URL
+    , conversions : List Types.Conversion
+    , suggestions : List Types.Suggestion
+    , mdl : Material.Model
+    , pollers : Polling.Pollers
     }
 
 
@@ -76,5 +26,7 @@ initialModel : Model
 initialModel =
     { current_url = ""
     , conversions = []
-    , candidates = []
+    , suggestions = []
+    , mdl = Material.model
+    , pollers = Dict.empty
     }

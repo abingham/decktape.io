@@ -1,11 +1,18 @@
 module DecktapeIO.Msg exposing (..)
 
-import DecktapeIO.Model exposing (..)
-import Result exposing (Result)
+import DecktapeIO.TaskRepeater as TaskRepeater
+import DecktapeIO.Types exposing (..)
+import Material
+
 
 type Msg
-  = SetCurrentUrl URL
-  | SubmitCurrentUrl
-  | HandleConvertResponse URL (Result String StatusLocator)
-  | HandleStatusResponse FileID (Result String ConversionDetails)
-  | HandleCandidatesResponse URL (Result String (List Candidate))
+    = SetCurrentUrl URL
+    | SubmitCurrentUrl
+    | SubmissionSuccess URL StatusLocator
+    | SubmissionError URL String
+    | StatusSuccess FileID ConversionDetails
+    | StatusError FileID String
+    | SuggestionsSuccess URL (List Suggestion)
+    | SuggestionsError URL String
+    | Mdl (Material.Msg Msg)
+    | Poll FileID (TaskRepeater.Msg Msg)

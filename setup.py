@@ -10,18 +10,19 @@ with open(os.path.join(here, 'CHANGES.txt')) as f:
 
 requires = [
     'celery',
-    'hypothesis',
     'pymongo',
     'pyramid',
     'pyramid_chameleon',
     'pyramid_debugtoolbar',
-    'python_levenshtein',
     'stringscore',
+    'validators',
     'waitress',
-    'WebTest >= 1.3.1',  # py3 compat
-    'pytest',  # includes virtualenv
-    'pytest-cov',
     ]
+
+tests_require = [
+    'hypothesis',
+    'pytest',
+]
 
 setup(name='decktape_io',
       version='0.0',
@@ -43,6 +44,7 @@ setup(name='decktape_io',
       include_package_data=True,
       zip_safe=False,
       install_requires=requires,
+      tests_require=tests_require,
       entry_points="""\
       [paste.app_factory]
       main = decktape_io:main

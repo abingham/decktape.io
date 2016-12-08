@@ -5,5 +5,5 @@ def configure_routes(config):
     config.add_route('convert', '/convert')
     config.add_route('status', '/status/{file_id}')
     config.add_route('result', '/result/{file_id}')
-    config.add_route('candidates', '/candidates')
+    config.add_route('suggestions', '/suggestions')
     config.scan()

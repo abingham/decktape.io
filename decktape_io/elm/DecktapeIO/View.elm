@@ -2,125 +2,188 @@ module DecktapeIO.View exposing (view)
 
 import DecktapeIO.Model
 import DecktapeIO.Msg exposing (..)
-import Html exposing (..)
+import DecktapeIO.Types as Types
+import Html exposing (a, div, h1, Html, p, text)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput)
-import Html.Shorthand exposing (..)
-import Bootstrap.Html exposing (..)
 
 
--- Display of a single conversion request status.
+-- import Html.Events exposing (onInput)
+-- import Html.Shorthand exposing (..)
+
+import Material.Button as Button
 
 
-conversionDetailsToRow : DecktapeIO.Model.ConversionDetails -> Html Msg
-conversionDetailsToRow status =
+-- import Material.Card as Card
+
+import Material.Grid as Grid
+import Material.Layout as Layout
+import Material.List as List
+import Material.Options as Options
+import Material.Progress as Progress
+import Material.Textfield as Textfield
+import Material.Typography as Typography
+
+
+simpleStyle : Options.Property c Msg -> String -> Html Msg
+simpleStyle property msg =
+    Options.styled p
+        [ property ]
+        [ text msg ]
+
+
+title : String -> Html Msg
+title =
+    simpleStyle Typography.title
+
+
+caption : String -> Html Msg
+caption =
+    simpleStyle Typography.caption
+
+
+button : String -> Html Msg
+button =
+    simpleStyle Typography.button
+
+
+fullWidth : List (Options.Style Msg)
+fullWidth =
+    [ Grid.size Grid.Desktop 12, Grid.size Grid.Tablet 8, Grid.size Grid.Phone 4 ]
+
+
+halfWidth : List (Options.Style Msg)
+halfWidth =
+    [ Grid.size Grid.Desktop 6, Grid.size Grid.Tablet 4, Grid.size Grid.Phone 2 ]
+
+
+quarterWidth : List (Options.Style Msg)
+quarterWidth =
+    [ Grid.size Grid.Desktop 3, Grid.size Grid.Tablet 2, Grid.size Grid.Phone 1 ]
+
+
+conversionDetailsView : Types.ConversionDetails -> Html Msg
+conversionDetailsView status =
     case status of
-        DecktapeIO.Model.Initiated _ ->
-            text "Initiated"
+        Types.Initiated _ ->
+            Progress.indeterminate
 
-        DecktapeIO.Model.InProgress _ ->
-            text "In progress"
+        Types.InProgress _ ->
+            Progress.indeterminate
 
-        DecktapeIO.Model.Complete data ->
+        Types.Complete data ->
             let
                 filename =
                     data.locator.file_id ++ ".pdf"
             in
                 a [ href data.download_url, downloadAs filename ] [ text "Download" ]
 
-        DecktapeIO.Model.Error msg ->
+        Types.Error msg ->
             text msg
 
 
-
--- Display for the collection of URLs submitted for conversion.
-
-
-submittedUrlsView : DecktapeIO.Model.Model -> Html Msg
-submittedUrlsView model =
+submittedListView : DecktapeIO.Model.Model -> Html Msg
+submittedListView model =
     let
-        make_row =
-            (\conversion ->
-                tr_
-                    [ td_
-                        [ a [ href conversion.source_url ]
-                            [ text conversion.source_url ]
-                        ]
-                    , td_ [ conversionDetailsToRow conversion.details ]
-                    ]
-            )
-
-        rows =
-            List.map make_row model.conversions
-
-        body =
-            if (List.isEmpty rows) then
-                (em [] [ text "No submissions" ])
-            else
-                tableStriped_
-                    [ thead_
-                        [ th' { class = "text-left" } [ text "Source URL" ]
-                        , th' { class = "text-left" } [ text "Status" ]
-                        ]
-                    , tbody_ rows
-                    ]
-    in
-        panelDefault_
-            [ panelHeading_ [ strong [] [ text "Submissions" ] ]
-            , panelBody_ [ body ]
-            ]
-
-
-candidatesView : DecktapeIO.Model.Model -> Html Msg
-candidatesView model =
-    let
-        make_row =
-            (\cand ->
-                tr_
-                    [ td_ [ text cand.source_url ]
-                    , td_ [ text cand.timestamp ]
-                    , td_ [ a [ href cand.download_url, downloadAs (cand.file_id ++ ".pdf") ] [ text "Download" ] ]
-                    ]
-            )
-
-        rows =
-            List.map make_row model.candidates
-
-        body =
-            if (List.isEmpty rows) then
-                (em [] [ text "No candidates" ])
-            else
-                tableStriped_
-                    [ thead_
-                        [ th' { class = "text-left" } [ text "URL" ]
-                        , th' { class = "text-left" } [ text "Timestamp" ]
-                        , th' { class = "text-left" } [ text "Link" ]
-                        ]
-                    , tbody_ rows
-                    ]
-    in
-        panelDefault_
-            [ panelHeading_ [ strong [] [ text "Candidates" ] ]
-            , panelBody_ [ body ]
-            ]
-
-
-mainForm : DecktapeIO.Model.Model -> Html Msg
-mainForm model =
-    div [ class "row" ]
-        [ div [ class "col-md-12" ]
-            [ div [ class "input-group" ]
-                [ input
-                    [ type' "text"
-                    , class "form-control"
-                    , value model.current_url
-                    , placeholder "URL of HTML presentation, e.g. http://www.w3.org/Talks/Tools/Slidy"
-                    , onInput SetCurrentUrl
-                    ]
+        make_item conversion =
+            List.li
+                [ List.withSubtitle ]
+                [ List.content
                     []
-                , span
-                    [ class "input-group-btn" ]
-                    [ btnDefault' "input-control" { btnParam | label = Just "Convert!" } SubmitCurrentUrl ]
+                    [ text conversion.source_url
+                    , List.subtitle [] [ conversionDetailsView conversion.details ]
+                    ]
+                ]
+
+        items =
+            List.map make_item model.conversions
+    in
+        List.ul
+            []
+            items
+
+
+submittedView : DecktapeIO.Model.Model -> Html Msg
+submittedView model =
+    if (List.isEmpty model.conversions) then
+        caption "No submissions"
+    else
+        submittedListView model
+
+
+suggestionsListView : DecktapeIO.Model.Model -> Html Msg
+suggestionsListView model =
+    let
+        make_item cand =
+            List.li
+                [ List.withSubtitle ]
+                [ List.content
+                    []
+                    [ text cand.source_url
+                    , List.subtitle [] [ text cand.timestamp ]
+                    ]
+                , a [ href cand.download_url, downloadAs (cand.file_id ++ ".pdf") ] [ button "Download" ]
+                ]
+
+        items =
+            List.map make_item model.suggestions
+    in
+        List.ul
+            []
+            items
+
+
+suggestionsView : DecktapeIO.Model.Model -> Html Msg
+suggestionsView model =
+    if (List.isEmpty model.suggestions) then
+        caption "No suggestions available"
+    else
+        suggestionsListView model
+
+
+urlForm : DecktapeIO.Model.Model -> Html Msg
+urlForm model =
+    div
+        []
+        [ Layout.row
+            []
+            [ Textfield.render Mdl
+                [ 0 ]
+                model.mdl
+                [ Textfield.label "URL"
+                , Textfield.floatingLabel
+                , Textfield.value model.current_url
+                , Textfield.onInput SetCurrentUrl
+                ]
+            ]
+        , Layout.row
+            []
+            [ Button.render Mdl
+                [ 0 ]
+                model.mdl
+                [ Button.raised
+                , Button.ripple
+                , Button.onClick SubmitCurrentUrl
+                ]
+                [ text "Convert" ]
+            ]
+        ]
+
+
+viewBody : DecktapeIO.Model.Model -> Html Msg
+viewBody model =
+    div
+        [ style [ ( "padding", "2rem" ) ] ]
+        [ Grid.grid
+            []
+            [ Grid.cell fullWidth
+                [ urlForm model ]
+            , Grid.cell halfWidth
+                [ title "Submissions"
+                , submittedView model
+                ]
+            , Grid.cell halfWidth
+                [ title "Suggestions"
+                , suggestionsView model
                 ]
             ]
         ]
@@ -128,10 +191,16 @@ mainForm model =
 
 view : DecktapeIO.Model.Model -> Html Msg
 view model =
-    div []
-        [ div [ class "well" ] [ mainForm model ]
-        , row_
-            [ colMd_ 6 6 6 [ submittedUrlsView model ]
-            , colMd_ 6 6 6 [ candidatesView model ]
-            ]
+    Layout.render Mdl
+        model.mdl
+        [-- Layout.fixedHeader
+         -- , Layout.selectedTab model.selectedTab
+         -- , Layout.onSelectTab SelectTab
         ]
+    { header = []
+    , drawer =
+          []
+    -- , tabs = ( [ text "Milk", text "Oranges" ], [ Color.background (Color.color Color.Teal Color.S400) ] )
+    , tabs = ( [], [] )
+    , main = [ viewBody model ]
+    }
