@@ -1,6 +1,8 @@
 var path = require("path")
 var BundleTracker = require('webpack-bundle-tracker')
 
+var elmSource = __dirname + '/src'
+
 module.exports = {
     context: __dirname,
 
@@ -27,7 +29,7 @@ module.exports = {
             {
                 test:    /\.elm$/,
                 exclude: [/elm-stuff/, /node_modules/],
-                loader:  'elm-webpack?verbose=true&warn=true',
+                loader:  'elm-webpack?verbose=true&warn=true&cwd=' + elmSource,
             },
             {
                 test:    /\.html$/,
