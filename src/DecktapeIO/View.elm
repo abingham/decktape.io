@@ -197,10 +197,10 @@ view model =
          -- , Layout.selectedTab model.selectedTab
          -- , Layout.onSelectTab SelectTab
         ]
-    { header = []
-    , drawer =
-          []
-    -- , tabs = ( [ text "Milk", text "Oranges" ], [ Color.background (Color.color Color.Teal Color.S400) ] )
-    , tabs = ( [], [] )
-    , main = [ viewBody model ]
-    }
+        { header = []
+        , drawer =
+            []
+            -- , tabs = ( [ text "Milk", text "Oranges" ], [ Color.background (Color.color Color.Teal Color.S400) ] )
+        , tabs = ( [], [] )
+        , main = [ viewBody model ]
+        }

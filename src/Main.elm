@@ -7,7 +7,6 @@ import DecktapeIO.View exposing (view)
 import Html.App as Html
 import Material
 
-
 main : Program Never
 main =
     Html.program
