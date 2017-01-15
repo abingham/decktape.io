@@ -2,7 +2,6 @@ decktape_io.egg-info
 build
 dist
 decktape_io/elm/elm-stuff
-decktape_io/elm/decktape_io.js
 __pycache__
 *pyc
 .csearchindex
@@ -15,3 +14,4 @@ decktape-1.0.0
 decktape_io/webpack
 node_modules
 elm-stuff
+src/decktape_io.js
