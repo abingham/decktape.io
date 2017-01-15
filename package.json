@@ -1,0 +1,29 @@
+{
+  "name": "decktape.io",
+  "version": "1.0.0",
+  "description": "Web presentation conversion with decktape",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abingham/decktape.io.git"
+  },
+  "author": "Austin Bingham",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/abingham/decktape.io/issues"
+  },
+  "homepage": "https://github.com/abingham/decktape.io#readme",
+  "devDependencies": {
+    "babel": "^6.5.2",
+    "babel-core": "^6.21.0",
+    "babel-loader": "^6.2.10",
+    "webpack": "^1.14.0",
+    "webpack-bundle-tracker": "^0.2.0"
+  }
+}

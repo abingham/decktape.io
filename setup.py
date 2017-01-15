@@ -14,6 +14,7 @@ requires = [
     'pyramid',
     'pyramid_chameleon',
     'pyramid_debugtoolbar',
+    'pyramid_webpack',
     'stringscore',
     'validators',
     'waitress',

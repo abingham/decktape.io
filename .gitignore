@@ -11,3 +11,7 @@ __pycache__
 
 # We might have a decktape installation hanging around. Ignore it.
 decktape-1.0.0
+
+decktape_io/webpack
+node_modules
+elm-stuff
