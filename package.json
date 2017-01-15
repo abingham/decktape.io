@@ -9,7 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "watch": "webpack --watch",
-    "start": "pserve development.ini"
+    "start": "pserve development.ini --reload"
   },
   "repository": {
     "type": "git",
