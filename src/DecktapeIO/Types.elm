@@ -1,17 +1,25 @@
 module DecktapeIO.Types exposing (..)
 
+-- TODO: Could we instead use `type URL = URL String`? For added type safety...
+
 
 type alias URL =
     String
+
+
+
+-- TODO: Same here...
 
 
 type alias FileID =
     String
 
 
+-- TODO: And here...
+
+
 type alias Timestamp =
     String
-
 
 type alias StatusLocator =
     { file_id : FileID
