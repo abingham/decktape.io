@@ -1,10 +1,8 @@
 [![Build Status](https://travis-ci.org/abingham/decktape.io.png?branch=master)](https://travis-ci.org/abingham/decktape.io) [![Code Health](https://landscape.io/github/abingham/decktape.io/master/landscape.svg?style=flat)](https://landscape.io/github/abingham/decktape.io/master)
 
-decktape_io README
-==================
+# decktape_io README
 
-Installing decktape
--------------------
+## Installing decktape
 
 DeckTape.io assumes that decktape itself (and phantomjs) is installed in a directory
 called "decktape-1.0.0" which is a sibling to this file. For example:
@@ -17,20 +15,27 @@ curl -L https://github.com/astefanutti/decktape/releases/download/v1.0.0/phantom
 chmod +x phantomjs
 ```
 
-See [the decktape project](https://github.com/astefanutti/decktape/) for more
+See [the decktape project](https://github.com/astefaservernutti/decktape/) for more
 info.
 
-Installing decktape.io
-----------------------
+## Installing decktape.io
 
 1. Install the [npm](https://www.npmjs.com/) dependencies
 ([installing npm](https://docs.npmjs.com/getting-started/installing-node) first
-if necessary): ``` npm install ```
+if necessary):
+
+```
+npm install
+```
 
 2. Compile the elm portions of the site
+
 ```
 npm run build
 ```
+
+Note that this isn't strictly necessary if you're going to use webpack's file
+watching capabilities during development.
 
 3. Install the Python components. It's probably best to do this in a virtual environment.
 
@@ -38,14 +43,39 @@ npm run build
 python setup.py install
 ```
 
-Running decktape.io
--------------------
+## Running decktape.io
 
-decktape.io requires mongodb and rabbitmq be running. Assuming they're up, you
-first need to start at least one worker:
+decktape.io has two main moving parts:
+
+ 1. The pyramid web server managing the web bits
+ 2. A celery worker managing the conversion jobs
+
+decktape.io also needs two services running:
+
+ 1. rabbit-mq: for celery
+ 2. mongodb: for storing conversion results
+
+### Running decktape.io during development
+
+The simplest way to run decktape during development is to use node-foreman to
+manage the web server, run the celery worker, and to recompile the Elm code when
+it changes. First, install node-foreman:
 ```
-celery -A decktape_io.worker worker
+npm install -g node-foreman
 ```
+
+Then from the top-level directory you can run the `nf` command to manage the
+executable elements:
+```
+nf start
+```
+
+### Running the parts individually
+
+Assuming that rabbitmq and mongodb are running, you first need to start at least
+one worker:
+
+``` celery -A decktape_io.worker worker ```
 
 This will occupy a terminal, so just let it be.
 
@@ -58,8 +88,7 @@ This will start a Pyramid server on port 6543.
 
 At this point you should have a fully functions system!
 
-Running tests
--------------
+## Running tests
 
 If you want to run the tests, you need to install a few more Python
 dependencies:
