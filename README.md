@@ -23,16 +23,16 @@ info.
 Installing decktape.io
 ----------------------
 
-First make sure you've installed [elm](elm-lang.org). This is needed to compile the elm-based parts of the app.
+1. Install the [npm](https://www.npmjs.com/) dependencies
+([installing npm](https://docs.npmjs.com/getting-started/installing-node) first
+if necessary): ``` npm install ```
 
-1. Compile the elm portions of the site
+2. Compile the elm portions of the site
 ```
-pushd decktape_io/elm
-elm-make Main.elm --yes --output=decktape_io.js
-popd
+npm run build
 ```
 
-2. Install the Python components. It's probably best to do this in a virtual environment.
+3. Install the Python components. It's probably best to do this in a virtual environment.
 
 ```
 python setup.py install
