@@ -52,6 +52,7 @@ def convert(request):
 
     return Response(
         body=json.dumps(result),
+        charset='UTF-8',
         content_type='application/json')
 
 
@@ -70,6 +71,7 @@ def status(request):
 
     return Response(
         json.dumps(md),
+        charset='UTF-8',
         content_type='application/json')
 
 
@@ -103,4 +105,5 @@ def suggestions(request):
 
     return Response(
         body=json.dumps(results),
+        charset='UTF-8',
         content_type='application/json')
