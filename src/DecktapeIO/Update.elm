@@ -32,7 +32,7 @@ handleSubmissionSuccess locator source_url =
             Types.Conversion source_url (Types.Initiated locator)
 
         poller =
-            Polling.statusPoller locator.file_id locator.status_url
+            Polling.statusPoller locator.status_url locator.file_id
     in
         map (inPlace conversions ((::) conversion))
             >> map (inPlace pollers (Dict.insert locator.file_id poller))
