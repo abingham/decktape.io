@@ -144,22 +144,22 @@ update msg model =
                 command (message (Msg.SetCurrentUrl ""))
                     >> command (submitUrl model.current_url)
 
-            Msg.SubmissionSuccess source_url locator ->
+            Msg.SubmissionResult source_url (Ok locator) ->
                 handleSubmissionSuccess locator source_url
 
-            Msg.SubmissionError source_url msg ->
+            Msg.SubmissionResult source_url (Err msg) ->
                 handleSubmissionError msg source_url
 
-            Msg.StatusSuccess file_id details ->
+            Msg.StatusResult file_id (Ok details) ->
                 handleStatusSuccess details file_id
 
-            Msg.StatusError file_id msg ->
+            Msg.StatusResult file_id (Err msg) ->
                 handleStatusError msg file_id
 
-            Msg.SuggestionsSuccess source_url suggs ->
+            Msg.Suggestions source_url (Ok suggs) ->
                 map (suggestions.set suggs)
 
-            Msg.SuggestionsError source_url msg ->
+            Msg.Suggestions source_url (Err msg) ->
                 zero
 
             Msg.Mdl msg' ->

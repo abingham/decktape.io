@@ -51,7 +51,7 @@ statusPoller statusURL fileID =
         TR.model
             (Http.get decoder statusURL)
             (uniform (Time.second * 2))
-            (Msg.StatusSuccess fileID)
-            (Json.errorToString >> Msg.StatusError fileID)
+            (Result.Ok >> Msg.StatusResult fileID)
+            (Json.errorToString >> Result.Err >> Msg.StatusResult fileID)
             (Msg.Poll fileID)
             continue

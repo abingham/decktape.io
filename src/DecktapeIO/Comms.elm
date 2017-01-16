@@ -44,8 +44,8 @@ submitUrl presentationUrl =
                 body
     in
         Task.perform
-            (Json.errorToString >> Msg.SubmissionError presentationUrl)
-            (Msg.SubmissionSuccess presentationUrl)
+            (Json.errorToString >> Result.Err >> Msg.SubmissionResult presentationUrl)
+            (Result.Ok >> (Msg.SubmissionResult presentationUrl))
             task
 
 
@@ -61,6 +61,6 @@ getSuggestions source_url =
             Http.get (list Json.suggestionDecoder) url
     in
         Task.perform
-            (Json.errorToString >> Msg.SuggestionsError source_url)
-            (Msg.SuggestionsSuccess source_url)
+            (Json.errorToString >> Result.Err >> Msg.Suggestions source_url)
+            (Result.Ok >> Msg.Suggestions source_url)
             task

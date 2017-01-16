@@ -8,11 +8,8 @@ import Material
 type Msg
     = SetCurrentUrl URL
     | SubmitCurrentUrl
-    | SubmissionSuccess URL StatusLocator
-    | SubmissionError URL String
-    | StatusSuccess FileID ConversionDetails
-    | StatusError FileID String
-    | SuggestionsSuccess URL (List Suggestion)
-    | SuggestionsError URL String
+    | SubmissionResult URL (Result String StatusLocator)
+    | StatusResult FileID (Result String ConversionDetails)
+    | Suggestions URL (Result String (List Suggestion))
     | Mdl (Material.Msg Msg)
     | Poll FileID (TaskRepeater.Msg Msg)

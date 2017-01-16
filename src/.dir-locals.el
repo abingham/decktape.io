@@ -1,1 +1,1 @@
-((elm-mode . ((elm-compile-arguments "--yes" "--warn" "--output=decktape_io.js"))))
+((elm-mode . ((elm-compile-arguments "--yes" "--warn" "--output=.emacs.decktape_io.js"))))
