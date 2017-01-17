@@ -5,7 +5,11 @@
 We're targeting ubuntu-xenial machines on the google cloud.
 
  1. Create a new micro ubuntu-xenial instance
+<<<<<<< HEAD
  Allow HTTPS traffic
+=======
+ Allow HTTP traffic. (We still need to sort out https.)
+>>>>>>> Updated DEPLOY.md instructions.
 
  2. Update apt repos
 
@@ -53,8 +57,9 @@ We're targeting ubuntu-xenial machines on the google cloud.
 
  8. Install the nginx configuration
  ```
- sudo ln -s ~/src/decktape.io/nginx.conf /etc/nginx/sites-enabled/decktape-io
- sudo service nginx reload
+ sudo rm /etc/nginx/sites-enabled/default
+ sudo ln -s ~/src/decktape.io/nginx.conf /etc/nginx/sites-enabled/default
+ sudo service nginx restart
  ```
 
  9. Start celery worker in a tmux terminal
