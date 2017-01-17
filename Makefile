@@ -8,8 +8,8 @@ PHANTOM_OS=osx-cocoa
 endif
 
 elm:
-  npm install
-  npm run build
+	npm install
+	npm run build
 
 install_python:
 	python setup.py install
