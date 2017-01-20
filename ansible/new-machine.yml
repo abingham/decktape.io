@@ -1,0 +1,95 @@
+---
+
+- hosts: webservers
+  become: yes
+  become_method: sudo
+  roles:
+    - common
+  tasks:
+  - name: update repositories
+    apt:
+      update_cache: yes
+  - name: install apt packages
+    apt: name={{ item }}
+    with_items:
+     - rabbitmq-server
+     - nginx
+     - mongodb
+     - python3.5
+     - virtualenvwrapper
+     - supervisor
+  - name: get nodejs repository
+    shell: curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+  - name: install npm
+    apt:
+      name: nodejs
+
+- hosts: webservers
+  roles:
+    - common
+  tasks:
+  - name: clone decktape.io repo
+    git:
+      repo: "{{ repo }}"
+      dest: "{{ appDir }}"
+
+  - name: install NPM packages
+    npm:
+      path: "{{ appDir }}"
+
+  - name: build elm code
+    shell: npm run build
+    args:
+      chdir: "{{ appDir }}"
+
+  - name: create virtual env and install Python dependencies
+    pip:
+      requirements="{{ appDir }}"/requirements.txt
+      virtualenv="{{ venv }}"
+      virtualenv_python=python3.5
+
+  - name: create venv exec script
+    template: src=venv_exec.j2 dest={{ venv }}/exec mode=755
+
+  - name: install decktape.io Python code
+    command: "{{ venv }}/exec python setup.py install"
+    args:
+      chdir: "{{ appDir }}"
+
+  - name: download and unpack decktape
+    unarchive:
+      remote_src: yes
+      src: https://github.com/astefanutti/decktape/archive/v1.0.0.tar.gz
+      dest: "{{ appDir }}"
+      exclude: phantomjs
+
+  - name: download the proper version of phantomjs
+    get_url:
+      url: https://github.com/astefanutti/decktape/releases/download/v1.0.0/phantomjs-osx-cocoa-x86-64
+      dest: "{{ appDir }}/decktape-1.0.0/phantomjs"
+
+  - name: make phantomjs executable
+    file:
+      path="{{ appDir }}/decktape-1.0.0/phantomjs"
+      state=file
+      mode=a+x
+
+
+- hosts: webservers
+  become: yes
+  become_method: sudo
+  roles:
+    - common
+  tasks:
+  - name: install supervisor config
+    template: src=decktape_io.supervisor.j2 dest=/etc/supervisor/conf.d/decktape_io.conf mode=755
+
+  - name: start supervised processes
+    supervisorctl:
+      name={{ item }}
+      state=started
+    with_items:
+      - decktape_io_worker
+      - decktape_io
+
+  # install decktape

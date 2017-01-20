@@ -1,0 +1,7 @@
+[program:decktape_io]
+autorestart=true
+command={{ venv }}/bin/pserve {{ appDir }}/production.ini
+
+[program:decktape_io_worker]
+autorestart=true
+command={{ venv }}/bin/celery -A decktape_io.worker worker

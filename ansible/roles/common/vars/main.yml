@@ -1,0 +1,3 @@
+venv: /home/sixtynorth/envs/decktape-io
+appDir : /home/sixtynorth/src/decktape.io
+repo: https://github.com/abingham/decktape.io

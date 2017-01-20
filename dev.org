@@ -24,3 +24,11 @@ Here are the parts I envision right now:
 
 I'll probably continue to use this document to keep track of development, in
 conjunction with an online issue tracker.
+* Google app engine
+  Chatted with a Google guy at NDC, and he made a few suggestions regarding to
+  use google:
+  - We probably want appengine to manage the basic HTTP stuff
+  - use "cloud storage" for holding onto conversion results
+  - use their pub-sub system to manage work items
+  - Use "preemptive" VMs to do the conversion
+    - Or look at their new "functions"/serverless stuff
