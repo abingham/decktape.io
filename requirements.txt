@@ -2,7 +2,6 @@ amqp==2.1.4
 billiard==3.5.0.2
 celery==4.0.2
 Chameleon==3.0
-decktape-io==0.0
 decorator==4.0.11
 hupper==0.4.1
 kombu==4.0.2
